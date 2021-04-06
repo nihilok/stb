@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stop The Bus!</title>
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <link rel="stylesheet" type="text/css" href="../static/css/main.css">
+  <script type="text/javascript">
+      (function () {
+          let css = document.createElement('link');
+          css.href = 'https://use.fontawesome.com/releases/v5.15.1/css/all.css';
+          css.rel = 'stylesheet';
+          css.type = 'text/css';
+          document.getElementsByTagName('head')[0].appendChild(css);
+      })();
+  </script>
+</head>
+<body>
+
+<div id="mainDiv" class="pb-2 flex flex-col w-full h-screen justify-center items-center space-y-3 bg-gray-100">
+  <div class="flex justify-center items-center text-5xl font-semibold mr-1">Game ID:<span id="gameIdTag" style="font-family: 'Courier New', monospace;"
+                                                                                          class="font-bold ml-1">(no game)</span>
+  </div>
+  <div id="teams" class="grid grid-cols-2 w-full px-5 gap-2">
+    <div class="flex flex-col justify-start items-center w-full border border-gray-500 rounded bg-white">
+      Team A
+      <ul id="teamA">
+
+      </ul>
+    </div>
+    <div class="flex flex-col justify-start items-center w-full border border-gray-500 rounded bg-white">
+      Team B
+      <ul id="teamB">
+
+      </ul>
+    </div>
+  </div>
+  <div id="timer" class="px-5">You will have 30 seconds in which to write as many words starting with the starting letter as you can. If your word is the same as a word from the other team, neither word will be counted. Non British-English words (including misspelt words) will not be counted. Proper nouns and names ARE counted (within reason).</div>
+  <div class="text-4xl font-semibold">Starting letter: <span id="letter" class="font-bold">?</span></div>
+  <div id="gamePanel" class="h-full flex flex-col space-y-3 justify-center items-center w-full">
+    <div id="wordList" style="min-height: 35%;" class="mt-2 p-3 w-64 rounded bg-white border-2 border-gray-500 inner-shadow"><span class="text-gray-400 italic">words will appear here</span></div>
+    <input id="word" name="word" type="text"
+           class="w-64 p-2 border-2 border-gray-500 mx-auto rounded inner-shadow text-center text-2xl"
+           placeholder="type word here">
+    <button onclick="sendWord()">SEND</button>
+  </div>
+  <div id="joinCtrls" class="flex flex-col space-y-3 justify-center items-center w-full">
+    <input id='userName' type="text" placeholder="username" class="border border-black rounded w-64 px-10 py-2">
+    <input id='roomName' type="text" placeholder="room name" class="border border-black rounded w-64 px-10 py-2">
+    <button id='join'>
+      JOIN
+    </button>
+
+  <button id="newRoomBtn" onclick="newRoom({user: 'ME'})">NEW ROOM</button></div>
+  <button id='start' onClick="startGame()" style="visibility: hidden" class="text-center">
+    START
+  </button>
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
+        integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
+        crossorigin="anonymous"></script>
+<script type="text/javascript" src="../static/js/index.js"></script>
+</body>
+</html>

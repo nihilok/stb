@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+button {
+    @apply bg-gray-400 hover:bg-gray-500 text-center px-10 py-2 rounded border border-gray-500 cursor-pointer w-64 shadow-lg hover:shadow-sm
+}

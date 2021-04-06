@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Join Game</title>
+  <link rel="stylesheet" type="text/css" href="../static/css/main.css">
+  <script type="text/javascript">
+      (function () {
+          let css = document.createElement('link');
+          css.href = 'https://use.fontawesome.com/releases/v5.15.1/css/all.css';
+          css.rel = 'stylesheet';
+          css.type = 'text/css';
+          document.getElementsByTagName('head')[0].appendChild(css);
+      })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
+          integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
+          crossorigin="anonymous"></script>
+  <script type="text/javascript" src="../static/js/index.js"></script>
+</head>
+<body>
+
+<input id='userName' type="text" placeholder="username" class="border border-black rounded w-64 px-10 py-2">
+<input id='roomName' type="text" placeholder="room name" class="border border-black rounded w-64 px-10 py-2">
+<div id='join' class="bg-gray-400 px-10 py-2 rounded border border-gray-500 hover:bg-gray-500 cursor-pointer w-64">
+  JOIN
+</div>
+
+<script type="text/javascript">
+    const joinGame = (data) => {
+        socketio.emit('join', {username: data.user, room: data.room});
+    }
+    let roomName = document.getElementById('roomName')
+    let userName = document.getElementById('userName')
+    let joinBtn = document.getElementById('join')
+    const onJoinRoom = () => {
+        let data = {
+            room: roomName.value,
+            user: userName.value
+        }
+        joinGame(data);
+        window.location = `${window.origin}/`
+    }
+    joinBtn.addEventListener('click', onJoinRoom)
+    roomName.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') {
+            onJoinRoom()
+        }
+    })
+</script>
+</body>
+</html>
