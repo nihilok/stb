@@ -200,6 +200,7 @@ def on_join(data):
         join_room(room)
         game = games[room]
         if user not in [p[1] for p in game.players]:
+            # TODO: make user dict with request.sid as key to avoid looping
             game.players.append([username, user, request.sid])
         else:
             for p in game.players:
