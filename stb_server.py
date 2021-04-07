@@ -39,7 +39,6 @@ def riffle(deck):
 
 
 class GameEngine:
-
     ROUND_LENGTH = 30
     CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
@@ -63,6 +62,7 @@ class GameEngine:
         self.game_started = False
         self.starting_letter = ''
         self.games_played = 0
+        self.score_tally = 0  # a negative, b positive
 
     def init_game(self):
         if not self._teams:
@@ -88,14 +88,22 @@ class GameEngine:
         end_time = datetime.now() + timedelta(seconds=self.ROUND_LENGTH)
         return end_time
 
-    @staticmethod
-    def return_winner(a, b):
+    def return_winner(self, a, b):
         if a > b:
+            self.score_tally -= 1
             return 'Team A won!'
         elif b > a:
+            self.score_tally += 1
             return 'Team B won!'
         elif a == b:
             return 'It was a draw!'
+
+    def parse_score_tally(self):
+        if self.score_tally < 0:
+            return f'Team A has won {self.score_tally} more {"game" if self.score_tally == 1 else "games"} more than Team B'
+        elif self.score_tally > 0:
+            return f'Team B has won {self.score_tally} more {"game" if self.score_tally == 1 else "games"} more than Team A'
+        return "The scores are currently level"
 
     def stop_game(self):
         d = enchant.Dict("en_GB")
@@ -144,6 +152,7 @@ class GameEngine:
                 'bad_words': ', '.join(b_bad_words)
             },
             'winner': self.return_winner(a_score, b_score),
+            'score_tally': self.parse_score_tally(),
             'common_words': ', '.join(list(diff)) if diff else 'None!'
         }
 

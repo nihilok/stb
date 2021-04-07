@@ -161,9 +161,10 @@ socketio.on('start_timer', (time) => {
 
 socketio.on('round_result', (data) => {
     wordList.innerHTML = ''
-    wordList.innerHTML += `Team A <br> WORDS: ${data.a['good_words'] ? data.a['good_words'] : 'None!'}<br>BAD WORDS: ${data.a['bad_words'] ? data.a['bad_words'] : 'None!'}<br>SCORE: ${data.a['score']}`
-    wordList.innerHTML += `<br><br>Team B <br> WORDS: ${data.b['good_words'] ? data.b['good_words'] : 'None!'}<br>BAD WORDS: ${data.b['bad_words'] ? data.b['bad_words'] : 'None!'}<br>SCORE: ${data.b['score']}`
+    wordList.innerHTML += `Team A <br> WORDS: ${data.a['good_words'] ? data.a['good_words'] : 'None!'}<br>NOT COUNTED: ${data.a['bad_words'] ? data.a['bad_words'] : 'None!'}<br>SCORE: ${data.a['score']}`
+    wordList.innerHTML += `<br><br>Team B <br> WORDS: ${data.b['good_words'] ? data.b['good_words'] : 'None!'}<br>NOT COUNTED: ${data.b['bad_words'] ? data.b['bad_words'] : 'None!'}<br>SCORE: ${data.b['score']}`
     wordList.innerHTML += `<br><br>${data.winner}`
+    wordList.innerHTML += `<br>${data.score_tally}`
     wordList.innerHTML += `<br><br>COMMON WORDS: ${data.common_words}`
     startBtn.style.visibility = 'visible';
 })
