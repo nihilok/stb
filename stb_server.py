@@ -177,7 +177,6 @@ def new_room(data):
     print(data)
     host = data
     room = data
-    sock_id = request.sid
     games[room] = GameEngine()
     games[room].players.append(['host', host])
     join_room(room)

@@ -1,6 +1,5 @@
 socketio = io('mjfullstack.com:7777');
 
-
 let instructions = 'You will have 30 seconds in which to write as many words starting with the starting letter as you can. If your word is the same as a word from the other team, neither word will be counted. Non British-English words (including misspelt words) will not be counted. Proper nouns and names ARE counted (within reason).';
 let msgConsole = document.getElementById('msgConsole');
 let gameId = document.getElementById('gameIdTag')
@@ -12,6 +11,7 @@ let userName = document.getElementById('userName');
 let joinBtn = document.getElementById('join');
 let word = document.getElementById('word');
 let wordList = document.getElementById('wordList');
+let newRoomBtn = document.getElementById('newRoomBtn');
 
 const getUserIdCookie = () => {
     return document.cookie
@@ -29,7 +29,7 @@ const loopTeam = (team, teamDiv) => {
     }
 };
 
-const newRoom = (data) => {
+const newRoom = () => {
     socketio.emit('new_room', getUserIdCookie());
 };
 
@@ -53,6 +53,12 @@ const sendWord = () => {
 const startGame = () => {
     socketio.emit('start_game', {room: gameId.innerText});
 };
+
+const onEnter = (e, func) => {
+    if (e.key === 'Enter') {
+        func();
+    }
+}
 
 // Socketio events:
 socketio.on('connect', () => {
@@ -106,7 +112,6 @@ socketio.on('starting_letter', (letter) => {
     document.getElementById('letter').innerHTML = letter;
 });
 
-
 socketio.on('receive_word', (msg) => {
     console.log('team words: ' + msg);
     wordList.innerHTML = msg;
@@ -144,14 +149,12 @@ joinBtn.addEventListener('click', onJoinRoom)
 
 startBtn.addEventListener('click', startGame)
 
+newRoomBtn.addEventListener('click', newRoom)
+
 roomName.addEventListener('keyup', (e) => {
-    if (e.key === 'Enter') {
-        onJoinRoom();
-    }
+    onEnter(e, onJoinRoom);
 });
 
 word.addEventListener('keyup', (e) => {
-    if (e.key === 'Enter') {
-        sendWord();
-    }
+    onEnter(e, sendWord);
 });
