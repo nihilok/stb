@@ -18,6 +18,7 @@ def random_string():
 app = Flask(__name__)
 app.secret_key = random_string()
 socketio = SocketIO(app, cors_allowed_origins='*')
+dictionary = enchant.Dict("en_GB")
 games = {}
 
 
@@ -111,37 +112,46 @@ class GameEngine:
             return f'Team B has won {self.score_tally} more {"game" if self.score_tally == 1 else "games"} than Team A'
         return "The scores are currently level"
 
+    @staticmethod
+    def check_words(a_words, b_words):
+        a_bad_words = []
+        for word in a_words:
+            if not dictionary.check(word):
+                a_bad_words.append(word)
+        for word in a_bad_words:
+            a_words.remove(word)
+        b_bad_words = []
+        for word in b_words:
+            if not dictionary.check(word):
+                b_bad_words.append(word)
+        for word in b_bad_words:
+            b_words.remove(word)
+        return a_words, b_words, a_bad_words, b_bad_words
+
+    @staticmethod
+    def check_scores(a_words, b_words):
+        a_score = 0
+        b_score = 0
+        for w in a_words:
+            a_score += len(w)
+        for w in b_words:
+            b_score += len(w)
+        return a_score, b_score
+
     def stop_game(self):
-        d = enchant.Dict("en_GB")
-        self.game_started = False
         a_words = set([w.title() for w in self.teams['a']['round_words']])
         b_words = set([w.title() for w in self.teams['b']['round_words']])
         ares, bres = list(a_words.difference(b_words)), list(b_words.difference(a_words))
         diff = set(list(a_words) + list(b_words)).difference(set(ares + bres))
-        self.teams['a']['round_words'] = []
-        self.teams['b']['round_words'] = []
-        a_bad_words = []
-        for word in ares:
-            if not d.check(word):
-                a_bad_words.append(word)
-        for word in a_bad_words:
-            ares.remove(word)
-        b_bad_words = []
-        for word in bres:
-            if not d.check(word):
-                b_bad_words.append(word)
-        for word in b_bad_words:
-            bres.remove(word)
-        a_score = 0
-        b_score = 0
-        for w in ares:
-            a_score += len(w)
-        for w in bres:
-            b_score += len(w)
+        ares, bres, a_bad_words, b_bad_words = self.check_words(ares, bres)
+        a_score, b_score = self.check_scores(ares, bres)
         if self.check_team_length():
             for key in self.teams.keys():
                 self.players += self.teams[key]['players']
                 self.teams[key]['players'] = []
+        self.teams['a']['round_words'] = []
+        self.teams['b']['round_words'] = []
+        self.game_started = False
         return {
             'a': {
                 'good_words': ', '.join(ares),
@@ -221,14 +231,11 @@ def disconnect():
             for p in enumerate(game.teams['a']['players']):
                 if p[1][2] == request.sid:
                     game.teams['a']['players'].pop(p[0])
-                    socketio.emit('message', p[1][0] + ' left team A', room=_room, broadcast=True)
             for p in enumerate(game.teams['b']['players']):
                 if p[1][2] == request.sid:
                     game.teams['b']['players'].pop(p[0])
-                    socketio.emit('message', p[1][0] + ' left team B', room=_room, broadcast=True)
-            if request.sid in [(i, p[2]) for i, p in enumerate(game.players)]:
-                game.players.pop(request.sid)
-
+        game.players.remove([(i, p) for i, p in enumerate(game.players) if p[2] == request.sid][0][1])
+        socketio.emit('message', [(i, p) for i, p in enumerate(game.players) if p[2] == request.sid][0][1][0] + ' has left the game', room=_room, broadcast=True)
 
 @socketio.on('send_word')
 def send_word(word):
