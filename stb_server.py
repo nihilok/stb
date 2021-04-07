@@ -29,6 +29,7 @@ def riffle(deck):
     and so on. Thus:
     riffle([1,2,3,4,5,6,7])
     returns [1, 4, 2, 5, 3, 6, 7]
+    courtesy of https://stackoverflow.com/a/19899905/14266189
     '''
     cut = len(deck) // 2  # floor division
     deck, second_deck = deck[:cut], deck[cut:]
@@ -100,7 +101,7 @@ class GameEngine:
 
     def parse_score_tally(self):
         if self.score_tally < 0:
-            return f'Team A has won {self.score_tally} more {"game" if self.score_tally == 1 else "games"} more than Team B'
+            return f'Team A has won {abs(self.score_tally)} more {"game" if self.score_tally == 1 else "games"} more than Team B'
         elif self.score_tally > 0:
             return f'Team B has won {self.score_tally} more {"game" if self.score_tally == 1 else "games"} more than Team A'
         return "The scores are currently level"
@@ -132,9 +133,6 @@ class GameEngine:
             a_score += len(w)
         for w in bres:
             b_score += len(w)
-
-        print('A: ' + ', '.join(ares) + '\nSCORE: ' + str(a_score) + '\nBAD WORDS: ' + ', '.join(a_bad_words))
-        print('B: ' + ', '.join(bres) + '\nSCORE: ' + str(b_score) + '\nBAD WORDS: ' + ', '.join(b_bad_words))
         if 1 not in (len(self.teams['a']['players']), len(self.teams['b']['players'])):
             if len(self.teams['a']['players']) % 2 != 0 or len(self.teams['b']['players']) % 2 != 0:
                 for key in self.teams.keys():
