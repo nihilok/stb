@@ -69,6 +69,9 @@ class GameEngine:
         if len(self.teams['a']['players']) + len(self.teams['b']['players']) > 2:
             if len(self.teams['a']['players']) != len(self.teams['b']['players']):
                 return True
+        elif (len(self.teams['a']['players']) == 0 or len(self.teams['b']['players']) == 0) and len(
+                self.teams['a']['players']) + len(self.teams['b']['players']) >= 2:
+            return True
 
     def init_game(self):
         if not self._teams:
@@ -88,7 +91,7 @@ class GameEngine:
             self.teams[team]['players'].append(self.players.pop(-1))
 
     def round_time(self):
-        end_time = datetime.now() + timedelta(seconds=self.ROUND_LENGTH+2)
+        end_time = datetime.now() + timedelta(seconds=self.ROUND_LENGTH + 2)
         return end_time
 
     def return_winner(self, a, b):
@@ -249,7 +252,8 @@ def start_game(data):
                                       len(game.teams['b']['players']) > 0)):
             game.init_game()
             socketio.emit('game_started', game.teams, room=data['room'], broadcast=True)
-            socketio.emit('start_timer', game.round_time().strftime('%Y-%m-%d %H:%M:%S'), room=data['room'], broadcast=True)
+            socketio.emit('start_timer', game.round_time().strftime('%Y-%m-%d %H:%M:%S'), room=data['room'],
+                          broadcast=True)
             socketio.emit('starting_letter', game.starting_letter, room=data['room'], broadcast=True)
         else:
             socketio.emit('message', 'not enough players', room=data['room'], broadcast=True)
