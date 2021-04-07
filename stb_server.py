@@ -71,7 +71,11 @@ class GameEngine:
         }
         if not self._teams:
             self._teams = itertools.cycle(self.teams.keys())
-        self.sort_teams()
+        if not self.games_played:
+            self.sort_teams()
+        elif 1 not in (len(self.teams['a']['players']), len(self.teams['b']['players'])):
+            if len(self.teams['a']['players']) % 2 != 0 or len(self.teams['b']['players']) % 2 != 0:
+                self.sort_teams()
         self.starting_letter = self.CHARS[randint(0, len(self.CHARS)-1)]
         self.game_started = True
         self.games_played += 1
@@ -125,9 +129,11 @@ class GameEngine:
 
         print('A: ' + ', '.join(ares) + '\nSCORE: ' + str(a_score) + '\nBAD WORDS: ' + ', '.join(a_bad_words))
         print('B: ' + ', '.join(bres) + '\nSCORE: ' + str(b_score) + '\nBAD WORDS: ' + ', '.join(b_bad_words))
-        for key in self.teams.keys():
-            self.players += self.teams[key]['players']
-            self.teams[key]['players'] = []
+        if 1 not in (len(self.teams['a']['players']), len(self.teams['b']['players'])):
+            if len(self.teams['a']['players']) % 2 != 0 or len(self.teams['b']['players']) % 2 != 0:
+                for key in self.teams.keys():
+                    self.players += self.teams[key]['players']
+                    self.teams[key]['players'] = []
         return {
             'a': {
                 'good_words': ', '.join(ares),

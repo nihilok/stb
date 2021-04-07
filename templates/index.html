@@ -18,8 +18,8 @@
 </head>
 <body>
 
-<div id="mainDiv" class="pb-2 flex flex-col w-full h-screen justify-center items-center space-y-3 bg-gray-100">
-  <div class="flex justify-center items-center text-5xl font-semibold mr-1">Game ID:<span id="gameIdTag" style="font-family: 'Courier New', monospace;"
+<div id="mainDiv" class="pb-2 flex flex-col w-full min-h-screen pt-3 justify-start items-center space-y-3 bg-gray-100">
+  <div class="flex justify-center items-center text-4xl font-semibold mr-1">Game ID:<span id="gameIdTag" style="font-family: 'Courier New', monospace;"
                                                                                           class="font-bold ml-1">(no game)</span>
   </div>
   <div id="teams" class="grid grid-cols-2 w-full px-5 gap-2">
@@ -39,7 +39,7 @@
   <div id="timer" class="px-5">You will have 30 seconds in which to write as many words starting with the starting letter as you can. If your word is the same as a word from the other team, neither word will be counted. Non British-English words (including misspelt words) will not be counted. Proper nouns and names ARE counted (within reason).</div>
   <div class="text-4xl font-semibold">Starting letter: <span id="letter" class="font-bold">?</span></div>
   <div id="gamePanel" class="h-full flex flex-col space-y-3 justify-center items-center w-full">
-    <div id="wordList" style="min-height: 35%;" class="mt-2 p-3 w-64 rounded bg-white border-2 border-gray-500 inner-shadow"><span class="text-gray-400 italic">words will appear here</span></div>
+    <div id="wordList" style="min-height: 10rem;" class="mt-2 p-3 w-64 rounded bg-white border-2 border-gray-500 inner-shadow"><span class="text-gray-400 italic">words will appear here</span></div>
     <input id="word" name="word" type="text"
            class="w-64 p-2 border-2 border-gray-500 mx-auto rounded inner-shadow text-center text-2xl"
            placeholder="type word here">

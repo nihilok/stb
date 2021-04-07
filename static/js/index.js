@@ -16,7 +16,10 @@ socketio.on('message', (msg) => {
 })
 
 socketio.on('player_joined', (msg) => {
-    console.log(msg)
+    document.getElementById("timer").innerHTML = msg
+    setTimeout(() => {
+        document.getElementById("timer").innerHTML = instructions
+    }, 3000)
 })
 
 let gameId = document.getElementById('gameIdTag')
@@ -34,6 +37,7 @@ socketio.on('new_room_name', (data) => {
 socketio.on('game_started', (data) => {
     loopTeam(data.a.players, teamA);
     loopTeam(data.b.players, teamB);
+    wordList.innerHTML = ''
     startBtn.style.visibility = 'hidden';
 })
 
