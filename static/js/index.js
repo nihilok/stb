@@ -156,6 +156,12 @@ roomName.addEventListener('keyup', (e) => {
     onEnter(e, onJoinRoom);
 });
 
+userName.addEventListener('keyup', (e) => {
+    if (roomName.value) {
+        onEnter(e, onJoinRoom);
+    }
+});
+
 word.addEventListener('keyup', (e) => {
     onEnter(e, sendWord);
 });
