@@ -72,6 +72,8 @@ class GameEngine:
         elif 1 not in (len(self.teams['a']['players']), len(self.teams['b']['players'])):
             if len(self.teams['a']['players']) % 2 != 0 or len(self.teams['b']['players']) % 2 != 0:
                 self.sort_teams()
+        elif len(self.players):
+            self.sort_teams()
         self.starting_letter = self.CHARS[randint(0, len(self.CHARS) - 1)]
         self.game_started = True
         self.games_played += 1
