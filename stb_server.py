@@ -67,7 +67,7 @@ class GameEngine:
 
     def check_team_length(self):
         if len(self.teams['a']['players']) + len(self.teams['b']['players']) > 2:
-            if len(self.teams['a']['players']) % 2 != 0 or len(self.teams['b']['players']) % 2 != 0:
+            if len(self.teams['a']['players']) != len(self.teams['b']['players']):
                 return True
 
     def init_game(self):
