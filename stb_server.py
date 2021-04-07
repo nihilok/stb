@@ -45,17 +45,17 @@ class GameEngine:
     CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
     def __init__(self):
-        self.players = []
+        self.players = {}
         self.teams = {
             'a': {
                 'team_name': '',
-                'players': [],
+                'players': {},
                 'round_words': [],
                 'score': 0
             },
             'b': {
                 'team_name': '',
-                'players': [],
+                'players': {},
                 'round_words': [],
                 'score': 0
             }
@@ -87,9 +87,10 @@ class GameEngine:
         self.games_played += 1
 
     def sort_teams(self):
-        for i in range(len(self.players)):
+        sids = list(self.players.keys())
+        for p in sids:
             team = next(self._teams)
-            self.teams[team]['players'].append(self.players.pop(-1))
+            self.teams[team]['players'][p] = self.players.pop(p)
 
     def round_time(self):
         end_time = datetime.now() + timedelta(seconds=self.ROUND_LENGTH + 2)
@@ -147,8 +148,10 @@ class GameEngine:
         a_score, b_score = self.check_scores(ares, bres)
         if self.check_team_length():
             for key in self.teams.keys():
-                self.players += self.teams[key]['players']
-                self.teams[key]['players'] = []
+                sids = list(self.teams[key]['players'].keys())
+                for player in sids:
+                    self.players[player] = self.teams[key]['players'].pop(player)
+                self.teams[key]['players'] = {}
         self.teams['a']['round_words'] = []
         self.teams['b']['round_words'] = []
         self.game_started = False
@@ -181,12 +184,19 @@ def index():
     return resp
 
 
+def return_user_dict(user_id, username):
+    return {
+        'userID': user_id,
+        'username': username,
+    }
+
+
 @socketio.on('new_room')
 def new_room(data):
     host = data['username']
     room = data['userID']
     games[room] = GameEngine()
-    games[room].players.append([host + ' (host)', room, request.sid])
+    games[room].players[request.sid] = return_user_dict(room, host + ' (host)')
     join_room(room)
     socketio.emit('new_room_name', room, room=room)
 
@@ -199,20 +209,11 @@ def on_join(data):
         user = data['userID']
         join_room(room)
         game = games[room]
-        if user not in [p[1] for p in game.players]:
-            # TODO: make user dict with request.sid as key to avoid looping
-            game.players.append([username, user, request.sid])
-        else:
-            for p in game.players:
-                if p[1] == user:
-                    p[0] = username
-                    p[2] = request.sid
+        game.players[request.sid] = return_user_dict(user, username)
+        socketio.emit('player_joined', username + ' has entered ' + room, room=room, broadcast=True)
         if game.game_started:
             all_words = riffle(game.teams['a']['round_words'] + game.teams['b']['round_words'])
-            socketio.emit('player_rejoined', {'teams': game.teams}, room=room)
             socketio.emit('receive_word', ', '.join(all_words), room=data['room'])
-        else:
-            socketio.emit('player_joined', username + ' has entered ' + room, room=room, broadcast=True)
         socketio.emit('new_room_name', room, room=room)
     else:
         socketio.emit('message', 'Room not found', room=request.sid)
@@ -229,14 +230,16 @@ def disconnect():
             _room = room
     if game:
         if game.game_started or game.games_played:
-            for p in enumerate(game.teams['a']['players']):
-                if p[1][2] == request.sid:
-                    game.teams['a']['players'].pop(p[0])
-            for p in enumerate(game.teams['b']['players']):
-                if p[1][2] == request.sid:
-                    game.teams['b']['players'].pop(p[0])
-        game.players.remove([(i, p) for i, p in enumerate(game.players) if p[2] == request.sid][0][1])
-        socketio.emit('message', [(i, p) for i, p in enumerate(game.players) if p[2] == request.sid][0][1][0] + ' has left the game', room=_room, broadcast=True)
+            for team in game.teams.keys():
+                if request.sid in game.teams[team]['players'].keys():
+                    socketio.emit('message',
+                                  game.teams[team]['players'].pop(request.sid)['username'] + ' has left the game',
+                                  room=_room, broadcast=True)
+                    break
+        if request.sid in game.players.keys():
+            socketio.emit('message', game.players.pop(request.sid)['username'] + ' has left the game', room=_room,
+                          broadcast=True)
+
 
 @socketio.on('send_word')
 def send_word(word):
@@ -259,7 +262,19 @@ def start_game(data):
                                      (len(game.teams['a']['players']) > 0 and
                                       len(game.teams['b']['players']) > 0)):
             game.init_game()
-            socketio.emit('game_started', game.teams, room=data['room'], broadcast=True)
+            asids = [sid for sid in game.teams['a']['players'].keys()]
+            bsids = [sid for sid in game.teams['b']['players'].keys()]
+            teams = {
+                'a': [],
+                'b': [],
+            }
+            for sid in asids:
+                print(game.teams['a']['players'][sid])
+                teams['a'].append(game.teams['a']['players'][sid]['username'])
+            for sid in bsids:
+                print(game.teams['b']['players'][sid]['username'])
+                teams['b'].append(game.teams['b']['players'][sid]['username'])
+            socketio.emit('game_started', teams, room=data['room'], broadcast=True)
             socketio.emit('start_timer', game.round_time().strftime('%Y-%m-%d %H:%M:%S'), room=data['room'],
                           broadcast=True)
             socketio.emit('starting_letter', game.starting_letter, room=data['room'], broadcast=True)

@@ -65,7 +65,7 @@ const loopTeam = (team, teamDiv) => {
     teamDiv.innerHTML = '';
     for (i = 0; i < team.length; i++) {
         let li = document.createElement('li');
-        li.innerHTML = team[i][0];
+        li.innerHTML = team[i];
         teamDiv.appendChild(li);
     }
 };
@@ -116,16 +116,10 @@ socketio.on('new_room_name', (data) => {
 });
 
 socketio.on('game_started', (data) => {
-    loopTeam(data.a.players, teamA);
-    loopTeam(data.b.players, teamB);
+    loopTeam(data.a, teamA);
+    loopTeam(data.b, teamB);
     wordList.innerHTML = '';
     startBtn.style.display = 'none';
-});
-
-socketio.on('player_rejoined', (data) => {
-    loopTeam(data.teams.a.players, teamA);
-    loopTeam(data.teams.b.players, teamB);
-    wordList.innerHTML = data.teams.a.round_words;
 });
 
 socketio.on('starting_letter', (letter) => {
