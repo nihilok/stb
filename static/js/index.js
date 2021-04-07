@@ -21,7 +21,7 @@ let newRoomBtn = document.getElementById('newRoomBtn');
 // Socket funcs:
 
 const newRoom = () => {
-    socketio.emit('new_room', getUserIdCookie());
+    socketio.emit('new_room', {userID: getUserIdCookie(), username: userName.value});
 };
 
 const joinGame = (data) => {
@@ -69,6 +69,12 @@ const loopTeam = (team, teamDiv) => {
         teamDiv.appendChild(li);
     }
 };
+
+const convertDateForIos = (date) => {
+    let arr = date.split(/[- :]/);
+    date = new Date(arr[0], arr[1]-1, arr[2], arr[3], arr[4], arr[5]);
+    return date;
+}
 
 
 // Socketio event handling:
@@ -141,7 +147,7 @@ socketio.on('round_result', (data) => {
 });
 
 socketio.on('start_timer', (time) => {
-    const countDownDate = new Date(time).getTime();
+    const countDownDate = convertDateForIos(time).getTime();
     const x = setInterval(function () {
         let now = new Date().getTime();
         let distance = countDownDate - now;

@@ -4,7 +4,7 @@ from random import randint
 
 import enchant
 from flask import Flask, render_template, request, make_response, session
-from flask_socketio import SocketIO, join_room, leave_room
+from flask_socketio import SocketIO, join_room, leave_room, rooms
 
 
 def random_string():
@@ -168,18 +168,13 @@ def index():
     return resp
 
 
-@app.route('/join')
-def join():
-    return render_template('join_game.html')
-
-
 @socketio.on('new_room')
 def new_room(data):
     print(data)
-    host = data
-    room = data
+    host = data['username']
+    room = data['userID']
     games[room] = GameEngine()
-    games[room].players.append(['host', host])
+    games[room].players.append([host + ' (host)', room, request.sid])
     join_room(room)
     socketio.emit('new_room_name', room, room=room)
 
@@ -193,11 +188,12 @@ def on_join(data):
         join_room(room)
         game = games[room]
         if user not in [p[1] for p in game.players]:
-            game.players.append([username, user])
+            game.players.append([username, user, request.sid])
         else:
             for p in game.players:
                 if p[1] == user:
                     p[0] = username
+                    p[2] = request.sid
         if game.game_started:
             all_words = riffle(game.teams['a']['round_words'] + game.teams['b']['round_words'])
             socketio.emit('player_rejoined', {'teams': game.teams}, room=room)
@@ -209,12 +205,27 @@ def on_join(data):
         socketio.emit('message', 'Room not found', room=request.sid)
 
 
-@socketio.on('leave')
-def on_leave(data):
-    user = data['user']
-    room = data['room']
-    leave_room(room)
-    socketio.emit('message', user + ' has left ' + room, broadcast=True)
+@socketio.on('disconnect')
+def disconnect():
+    game = None
+    _room = None
+    for room in rooms(request.sid):
+        leave_room(room)
+        if len(room) == 8:
+            game = games[room]
+            _room = room
+    if game:
+        if game.game_started or game.games_played:
+            for p in enumerate(game.teams['a']['players']):
+                if p[1][2] == request.sid:
+                    game.teams['a']['players'].pop(p[0])
+                    socketio.emit('message', p[1][0] + ' left team A', room=_room, broadcast=True)
+            for p in enumerate(game.teams['b']['players']):
+                if p[1][2] == request.sid:
+                    game.teams['b']['players'].pop(p[0])
+                    socketio.emit('message', p[1][0] + ' left team B', room=_room, broadcast=True)
+            if request.sid in [(i, p[2]) for i, p in enumerate(game.players)]:
+                game.players.pop(request.sid)
 
 
 @socketio.on('send_word')
@@ -234,10 +245,12 @@ def time_up(data):
 def start_game(data):
     game = games[data['room']]
     if not game.game_started:
-        if len(game.players) > 1 or game.games_played > 0:
+        if len(game.players) > 1 or (game.games_played > 0 and
+                                     (len(game.teams['a']['players']) > 0 and
+                                      len(game.teams['b']['players']) > 0)):
             game.init_game()
             socketio.emit('game_started', game.teams, room=data['room'], broadcast=True)
-            socketio.emit('start_timer', str(game.round()), room=data['room'], broadcast=True)
+            socketio.emit('start_timer', game.round().strftime('%Y-%m-%d %H:%M:%S'), room=data['room'], broadcast=True)
             socketio.emit('starting_letter', game.starting_letter, room=data['room'], broadcast=True)
         else:
             socketio.emit('message', 'not enough players', room=data['room'], broadcast=True)
