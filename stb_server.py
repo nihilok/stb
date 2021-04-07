@@ -22,7 +22,7 @@ games = {}
 
 
 def riffle(deck):
-    '''
+    """
     Shuffle a list like a deck of cards.
     i.e. given a list, split with second set have the extra if len is odd
     and then interleave, second deck's first item after first deck's first item
@@ -30,7 +30,7 @@ def riffle(deck):
     riffle([1,2,3,4,5,6,7])
     returns [1, 4, 2, 5, 3, 6, 7]
     courtesy of https://stackoverflow.com/a/19899905/14266189
-    '''
+    """
     cut = len(deck) // 2  # floor division
     deck, second_deck = deck[:cut], deck[cut:]
     for index, item in enumerate(second_deck):
