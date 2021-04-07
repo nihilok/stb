@@ -1,5 +1,8 @@
 socketio = io('mjfullstack.com:7777')
 
+let msgConsole = document.getElementById('msgConsole')
+let instructions = 'You will have 30 seconds in which to write as many words starting with the starting letter as you can. If your word is the same as a word from the other team, neither word will be counted. Non British-English words (including misspelt words) will not be counted. Proper nouns and names ARE counted (within reason).'
+
 socketio.on('connect', () => {
     console.log('Connected')
 })
@@ -9,16 +12,20 @@ socketio.on('disconnect', () => {
 })
 
 socketio.on('message', (msg) => {
-    document.getElementById("timer").innerHTML = msg
+    msgConsole.style.display = 'block'
+    msgConsole.innerHTML = msg
     setTimeout(() => {
-        document.getElementById("timer").innerHTML = instructions
+        msgConsole.innerHTML = ''
+        msgConsole.style.display = 'none'
     }, 3000)
 })
 
 socketio.on('player_joined', (msg) => {
-    document.getElementById("timer").innerHTML = msg
+    msgConsole.style.display = 'block'
+    msgConsole.innerHTML = msg
     setTimeout(() => {
-        document.getElementById("timer").innerHTML = instructions
+        msgConsole.innerHTML = ''
+        msgConsole.style.display = 'none'
     }, 3000)
 })
 
@@ -53,7 +60,6 @@ const loopTeam = (team, teamDiv) => {
     }
 }
 
-let instructions = 'You will have 30 seconds in which to write as many words starting with the starting letter as you can. If your word is the same as a word from the other team, neither word will be counted. Non British-English words (including misspelt words) will not be counted. Proper nouns and names ARE counted (within reason).'
 
 socketio.on('player_rejoined', (data) => {
     loopTeam(data.teams.a.players, teamA);
