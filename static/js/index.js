@@ -1,5 +1,4 @@
 // Socket connection:
-
 socketio = io('mjfullstack.com:7777');
 
 
@@ -158,7 +157,8 @@ socketio.on('start_timer', (time) => {
     }, 1000);
 });
 
-// DOM event handling
+// DOM event handling:
+
 joinBtn.addEventListener('click', onJoinRoom)
 
 startBtn.addEventListener('click', startGame)
