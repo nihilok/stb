@@ -1,60 +1,50 @@
 import itertools
-import time
-import enchant
 from datetime import datetime, timedelta
 from random import randint
 
+import enchant
 from flask import Flask, render_template, request, make_response, session
-from flask_socketio import SocketIO, join_room, leave_room, rooms
+from flask_socketio import SocketIO, join_room, leave_room
+
 
 def random_string():
     chars = 'WhT21OD9K8CdSX7gU3A0BREjkJYN4PQ5a6s'
     rs = ''
     for i in range(8):
-        rs += chars[randint(0, len(chars)-1)]
+        rs += chars[randint(0, len(chars) - 1)]
     return rs
+
 
 app = Flask(__name__)
 app.secret_key = random_string()
 socketio = SocketIO(app, cors_allowed_origins='*')
+games = {}
 
 
 def riffle(deck):
-    '''
+    """
     Shuffle a list like a deck of cards.
     i.e. given a list, split with second set have the extra if len is odd
     and then interleave, second deck's first item after first deck's first item
     and so on. Thus:
     riffle([1,2,3,4,5,6,7])
     returns [1, 4, 2, 5, 3, 6, 7]
-    '''
-    cut = len(deck) // 2                        # floor division
+    courtesy of https://stackoverflow.com/a/19899905/14266189
+    """
+    cut = len(deck) // 2  # floor division
     deck, second_deck = deck[:cut], deck[cut:]
     for index, item in enumerate(second_deck):
-        insert_index = index*2 + 1
+        insert_index = index * 2 + 1
         deck.insert(insert_index, item)
     return deck
 
 
 class GameEngine:
     ROUND_LENGTH = 30
-    blank_team_dict = {
-        'team_name': '',
-        'players': [],
-        'round_words': [],
-        'score': 0
-    }
     CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
     def __init__(self):
         self.players = []
-        self.teams = {}
-        self._teams = None
-        self.game_started = False
-        self.starting_letter = ''
-        self.games_played = 0
-
-    def init_game(self):
         self.teams = {
             'a': {
                 'team_name': '',
@@ -69,14 +59,26 @@ class GameEngine:
                 'score': 0
             }
         }
+        self._teams = None
+        self.game_started = False
+        self.starting_letter = ''
+        self.games_played = 0
+        self.score_tally = 0  # a negative, b positive
+
+    def check_team_length(self):
+        if len(self.teams['a']['players']) + len(self.teams['b']['players']) > 2:
+            if len(self.teams['a']['players']) % 2 != 0 or len(self.teams['b']['players']) % 2 != 0:
+                return True
+
+    def init_game(self):
         if not self._teams:
             self._teams = itertools.cycle(self.teams.keys())
-        if not self.games_played:
             self.sort_teams()
-        elif 1 not in (len(self.teams['a']['players']), len(self.teams['b']['players'])):
-            if len(self.teams['a']['players']) % 2 != 0 or len(self.teams['b']['players']) % 2 != 0:
-                self.sort_teams()
-        self.starting_letter = self.CHARS[randint(0, len(self.CHARS)-1)]
+        elif self.check_team_length():
+            self.sort_teams()
+        elif len(self.players):
+            self.sort_teams()
+        self.starting_letter = self.CHARS[randint(0, len(self.CHARS) - 1)]
         self.game_started = True
         self.games_played += 1
 
@@ -86,18 +88,25 @@ class GameEngine:
             self.teams[team]['players'].append(self.players.pop(-1))
 
     def round(self):
-        """Start timer. When timer ends get all words from players and calculate scores"""
         end_time = datetime.now() + timedelta(seconds=self.ROUND_LENGTH)
         return end_time
 
-    @staticmethod
-    def return_winner(a, b):
+    def return_winner(self, a, b):
         if a > b:
+            self.score_tally -= 1
             return 'Team A won!'
         elif b > a:
+            self.score_tally += 1
             return 'Team B won!'
         elif a == b:
             return 'It was a draw!'
+
+    def parse_score_tally(self):
+        if self.score_tally < 0:
+            return f'Team A has won {abs(self.score_tally)} more {"game" if self.score_tally == 1 else "games"} than Team B'
+        elif self.score_tally > 0:
+            return f'Team B has won {self.score_tally} more {"game" if self.score_tally == 1 else "games"} than Team A'
+        return "The scores are currently level"
 
     def stop_game(self):
         d = enchant.Dict("en_GB")
@@ -126,14 +135,10 @@ class GameEngine:
             a_score += len(w)
         for w in bres:
             b_score += len(w)
-
-        print('A: ' + ', '.join(ares) + '\nSCORE: ' + str(a_score) + '\nBAD WORDS: ' + ', '.join(a_bad_words))
-        print('B: ' + ', '.join(bres) + '\nSCORE: ' + str(b_score) + '\nBAD WORDS: ' + ', '.join(b_bad_words))
-        if 1 not in (len(self.teams['a']['players']), len(self.teams['b']['players'])):
-            if len(self.teams['a']['players']) % 2 != 0 or len(self.teams['b']['players']) % 2 != 0:
-                for key in self.teams.keys():
-                    self.players += self.teams[key]['players']
-                    self.teams[key]['players'] = []
+        if self.check_team_length():
+            for key in self.teams.keys():
+                self.players += self.teams[key]['players']
+                self.teams[key]['players'] = []
         return {
             'a': {
                 'good_words': ', '.join(ares),
@@ -146,19 +151,10 @@ class GameEngine:
                 'bad_words': ', '.join(b_bad_words)
             },
             'winner': self.return_winner(a_score, b_score),
+            'score_tally': self.parse_score_tally(),
             'common_words': ', '.join(list(diff)) if diff else 'None!'
         }
 
-
-
-games = {}
-
-def random_string():
-    chars = 'WhTI21OD9Kl8CdSX7gU3A0BREjkJYN4PQ5a6s'
-    rs = ''
-    for i in range(8):
-        rs += chars[randint(0, len(chars)-1)]
-    return rs
 
 @app.route('/')
 def index():
@@ -182,7 +178,6 @@ def new_room(data):
     print(data)
     host = data
     room = data
-    sock_id = request.sid
     games[room] = GameEngine()
     games[room].players.append(['host', host])
     join_room(room)
@@ -205,7 +200,7 @@ def on_join(data):
                     p[0] = username
         if game.game_started:
             all_words = riffle(game.teams['a']['round_words'] + game.teams['b']['round_words'])
-            socketio.emit('player_rejoined', {'teams':game.teams}, room=room)
+            socketio.emit('player_rejoined', {'teams': game.teams}, room=room)
             socketio.emit('receive_word', ', '.join(all_words), room=data['room'])
         else:
             socketio.emit('player_joined', username + ' has entered ' + room, room=room, broadcast=True)
@@ -225,6 +220,7 @@ def on_leave(data):
 @socketio.on('send_word')
 def send_word(word):
     socketio.send(word)
+
 
 @socketio.on('time_up')
 def time_up(data):
@@ -265,11 +261,11 @@ def send_word_to_room(data):
                 all_words = riffle(game.teams['a']['round_words'] + game.teams['b']['round_words'])
                 ob_words = []
                 for word in all_words:
-                    ob_word = word[0] + ('*'*(len(word)-2)) + word[-1]
+                    ob_word = word[0] + ('*' * (len(word) - 2)) + word[-1]
                     ob_words.append(ob_word)
                 socketio.emit('receive_word', ', '.join(ob_words), room=data['room'], broadcast=True)
         else:
-            socketio.emit('message', 'Game not started!', room=data['room'])
+            socketio.emit('message', 'Game not started!', room=request.sid)
     except KeyError:
         socketio.emit('message', 'You are not in a game!', room=request.sid)
 

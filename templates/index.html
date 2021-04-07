@@ -16,48 +16,62 @@
       })();
   </script>
 </head>
-<body>
+<body class="bg-black">
+<div class="container mx-auto h-screen overflow-y-auto overflow-x-hidden pt-0 bg-gray-100">
 
-<div id="mainDiv" class="pb-2 flex flex-col w-full min-h-screen pt-3 justify-start items-center space-y-3 bg-gray-100">
-  <div class="flex justify-center items-center text-4xl font-semibold mr-1">Game ID:<span id="gameIdTag" style="font-family: 'Courier New', monospace;"
-                                                                                          class="font-bold ml-1">(no game)</span>
-  </div>
-  <div id="teams" class="grid grid-cols-2 w-full px-5 gap-2">
-    <div class="flex flex-col justify-start items-center w-full border border-gray-500 rounded bg-white">
-      Team A
-      <ul id="teamA">
-
-      </ul>
+  <div id="mainDiv"
+       class="pb-2 flex flex-col w-full h-full pt-3 justify-start items-center space-y-3">
+    <div id="msgConsole" class="w-full text-center py-3 h-max"
+         style="display: none; font-family: monospace; color: green; background-color: black"></div>
+    <div class="flex justify-center items-center text-4xl font-semibold mr-1">Game ID:<span id="gameIdTag"
+                                                                                            style="font-family: monospace;"
+                                                                                            class="font-bold ml-1">(no game)</span>
     </div>
-    <div class="flex flex-col justify-start items-center w-full border border-gray-500 rounded bg-white">
-      Team B
-      <ul id="teamB">
+    <div id="teams" class="grid grid-cols-2 w-full px-5 gap-2 md:w-1/2">
+      <div class="flex flex-col justify-start items-center w-full border border-gray-500 rounded bg-white">
+        Team A
+        <ul id="teamA">
 
-      </ul>
+        </ul>
+      </div>
+      <div class="flex flex-col justify-start items-center w-full border border-gray-500 rounded bg-white">
+        Team B
+        <ul id="teamB">
+
+        </ul>
+      </div>
+    </div>
+    <div id="timer" class="px-5 md:w-1/2">You will have 30 seconds in which to write as many words starting with the
+      starting
+      letter as you can. If your word is the same as a word from the other team, neither word will be counted. Non
+      British-English words (including misspelt words) might not be counted. Proper nouns and names ARE counted (within
+      reason).
+    </div>
+    <div class="text-4xl font-semibold">Starting letter: <span id="letter" class="font-bold">?</span></div>
+    <div id="gamePanel" class="h-full flex flex-col space-y-3 justify-center items-center w-full">
+      <div id="wordList" style="min-height: 10rem;"
+           class="mt-2 p-3 w-64 rounded bg-white border-2 border-gray-500 inner-shadow"><span
+              class="text-gray-400 italic">words will appear here</span></div>
+      <input id="word" name="word" type="text"
+             class="w-64 p-2 border-2 border-gray-500 mx-auto rounded inner-shadow text-center text-2xl"
+             placeholder="type word here">
+      <button onclick="sendWord()">SEND</button>
+      <button id='start' style="display: none" class="text-center">
+        START
+      </button>
+    </div>
+    <div id="joinCtrls" class="flex flex-col space-y-3 justify-center items-center w-full">
+      <input id='userName' type="text" placeholder="username" class="border border-black rounded w-64 px-10 py-2">
+      <input id='roomName' type="text" placeholder="game id (to join)"
+             class="border border-black rounded w-64 px-10 py-2">
+      <button id='join'>
+        JOIN
+      </button>
+
+      <button id="newRoomBtn">NEW ROOM</button>
     </div>
   </div>
-  <div id="timer" class="px-5">You will have 30 seconds in which to write as many words starting with the starting letter as you can. If your word is the same as a word from the other team, neither word will be counted. Non British-English words (including misspelt words) will not be counted. Proper nouns and names ARE counted (within reason).</div>
-  <div class="text-4xl font-semibold">Starting letter: <span id="letter" class="font-bold">?</span></div>
-  <div id="gamePanel" class="h-full flex flex-col space-y-3 justify-center items-center w-full">
-    <div id="wordList" style="min-height: 10rem;" class="mt-2 p-3 w-64 rounded bg-white border-2 border-gray-500 inner-shadow"><span class="text-gray-400 italic">words will appear here</span></div>
-    <input id="word" name="word" type="text"
-           class="w-64 p-2 border-2 border-gray-500 mx-auto rounded inner-shadow text-center text-2xl"
-           placeholder="type word here">
-    <button onclick="sendWord()">SEND</button>
-  </div>
-  <div id="joinCtrls" class="flex flex-col space-y-3 justify-center items-center w-full">
-    <input id='userName' type="text" placeholder="username" class="border border-black rounded w-64 px-10 py-2">
-    <input id='roomName' type="text" placeholder="room name" class="border border-black rounded w-64 px-10 py-2">
-    <button id='join'>
-      JOIN
-    </button>
-
-  <button id="newRoomBtn" onclick="newRoom({user: 'ME'})">NEW ROOM</button></div>
-  <button id='start' onClick="startGame()" style="visibility: hidden" class="text-center">
-    START
-  </button>
 </div>
-
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
         integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
