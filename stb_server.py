@@ -1,22 +1,24 @@
 import itertools
-import time
-import enchant
 from datetime import datetime, timedelta
 from random import randint
 
+import enchant
 from flask import Flask, render_template, request, make_response, session
-from flask_socketio import SocketIO, join_room, leave_room, rooms
+from flask_socketio import SocketIO, join_room, leave_room
+
 
 def random_string():
     chars = 'WhT21OD9K8CdSX7gU3A0BREjkJYN4PQ5a6s'
     rs = ''
     for i in range(8):
-        rs += chars[randint(0, len(chars)-1)]
+        rs += chars[randint(0, len(chars) - 1)]
     return rs
+
 
 app = Flask(__name__)
 app.secret_key = random_string()
 socketio = SocketIO(app, cors_allowed_origins='*')
+games = {}
 
 
 def riffle(deck):
@@ -28,10 +30,10 @@ def riffle(deck):
     riffle([1,2,3,4,5,6,7])
     returns [1, 4, 2, 5, 3, 6, 7]
     '''
-    cut = len(deck) // 2                        # floor division
+    cut = len(deck) // 2  # floor division
     deck, second_deck = deck[:cut], deck[cut:]
     for index, item in enumerate(second_deck):
-        insert_index = index*2 + 1
+        insert_index = index * 2 + 1
         deck.insert(insert_index, item)
     return deck
 
@@ -76,7 +78,7 @@ class GameEngine:
         elif 1 not in (len(self.teams['a']['players']), len(self.teams['b']['players'])):
             if len(self.teams['a']['players']) % 2 != 0 or len(self.teams['b']['players']) % 2 != 0:
                 self.sort_teams()
-        self.starting_letter = self.CHARS[randint(0, len(self.CHARS)-1)]
+        self.starting_letter = self.CHARS[randint(0, len(self.CHARS) - 1)]
         self.game_started = True
         self.games_played += 1
 
@@ -150,16 +152,6 @@ class GameEngine:
         }
 
 
-
-games = {}
-
-def random_string():
-    chars = 'WhTI21OD9Kl8CdSX7gU3A0BREjkJYN4PQ5a6s'
-    rs = ''
-    for i in range(8):
-        rs += chars[randint(0, len(chars)-1)]
-    return rs
-
 @app.route('/')
 def index():
     resp = make_response(render_template('index.html'))
@@ -205,7 +197,7 @@ def on_join(data):
                     p[0] = username
         if game.game_started:
             all_words = riffle(game.teams['a']['round_words'] + game.teams['b']['round_words'])
-            socketio.emit('player_rejoined', {'teams':game.teams}, room=room)
+            socketio.emit('player_rejoined', {'teams': game.teams}, room=room)
             socketio.emit('receive_word', ', '.join(all_words), room=data['room'])
         else:
             socketio.emit('player_joined', username + ' has entered ' + room, room=room, broadcast=True)
@@ -225,6 +217,7 @@ def on_leave(data):
 @socketio.on('send_word')
 def send_word(word):
     socketio.send(word)
+
 
 @socketio.on('time_up')
 def time_up(data):
@@ -265,7 +258,7 @@ def send_word_to_room(data):
                 all_words = riffle(game.teams['a']['round_words'] + game.teams['b']['round_words'])
                 ob_words = []
                 for word in all_words:
-                    ob_word = word[0] + ('*'*(len(word)-2)) + word[-1]
+                    ob_word = word[0] + ('*' * (len(word) - 2)) + word[-1]
                     ob_words.append(ob_word)
                 socketio.emit('receive_word', ', '.join(ob_words), room=data['room'], broadcast=True)
         else:
