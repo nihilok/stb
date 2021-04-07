@@ -46,14 +46,14 @@ const startGame = () => {
     socketio.emit('start_game', {room: gameId.innerText});
 };
 
+
+// Other funcs:
+
 const onEnter = (e, func) => {
     if (e.key === 'Enter') {
         func();
     }
 }
-
-
-// Other funcs:
 
 const getUserIdCookie = () => {
     return document.cookie
