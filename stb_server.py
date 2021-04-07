@@ -65,14 +65,17 @@ class GameEngine:
         self.games_played = 0
         self.score_tally = 0  # a negative, b positive
 
+    def check_team_length(self):
+        if len(self.teams['a']['players']) + len(self.teams['b']['players']) > 2:
+            if len(self.teams['a']['players']) % 2 != 0 or len(self.teams['b']['players']) % 2 != 0:
+                return True
+
     def init_game(self):
         if not self._teams:
             self._teams = itertools.cycle(self.teams.keys())
-        if not self.games_played:
             self.sort_teams()
-        elif 1 not in (len(self.teams['a']['players']), len(self.teams['b']['players'])):
-            if len(self.teams['a']['players']) % 2 != 0 or len(self.teams['b']['players']) % 2 != 0:
-                self.sort_teams()
+        elif self.check_team_length():
+            self.sort_teams()
         elif len(self.players):
             self.sort_teams()
         self.starting_letter = self.CHARS[randint(0, len(self.CHARS) - 1)]
@@ -85,7 +88,6 @@ class GameEngine:
             self.teams[team]['players'].append(self.players.pop(-1))
 
     def round(self):
-        """Start timer. When timer ends get all words from players and calculate scores"""
         end_time = datetime.now() + timedelta(seconds=self.ROUND_LENGTH)
         return end_time
 
@@ -133,11 +135,10 @@ class GameEngine:
             a_score += len(w)
         for w in bres:
             b_score += len(w)
-        if 1 not in (len(self.teams['a']['players']), len(self.teams['b']['players'])):
-            if len(self.teams['a']['players']) % 2 != 0 or len(self.teams['b']['players']) % 2 != 0:
-                for key in self.teams.keys():
-                    self.players += self.teams[key]['players']
-                    self.teams[key]['players'] = []
+        if self.check_team_length():
+            for key in self.teams.keys():
+                self.players += self.teams[key]['players']
+                self.teams[key]['players'] = []
         return {
             'a': {
                 'good_words': ', '.join(ares),
