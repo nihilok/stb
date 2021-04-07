@@ -623,10 +623,6 @@ video {
   display: grid;
 }
 
-.hidden {
-  display: none;
-}
-
 .flex-col {
   flex-direction: column;
 }
@@ -686,6 +682,10 @@ video {
   margin-top: 0.5rem;
 }
 
+.mb-10 {
+  margin-bottom: 2.5rem;
+}
+
 .overflow-y-auto {
   overflow-y: auto;
 }
@@ -722,12 +722,12 @@ video {
   padding-right: 2.5rem;
 }
 
-.pb-2 {
-  padding-bottom: 0.5rem;
+.pt-0 {
+  padding-top: 0px;
 }
 
-.pt-3 {
-  padding-top: 0.75rem;
+.pb-2 {
+  padding-bottom: 0.5rem;
 }
 
 .static {
@@ -758,10 +758,6 @@ video {
 
 .italic {
   font-style: italic;
-}
-
-.visible {
-  visibility: visible;
 }
 
 .w-64 {
