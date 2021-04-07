@@ -1,4 +1,9 @@
+// Socket connection:
+
 socketio = io('mjfullstack.com:7777');
+
+
+// DOM elements:
 
 let instructions = 'You will have 30 seconds in which to write as many words starting with the starting letter as you can. If your word is the same as a word from the other team, neither word will be counted. Non British-English words (including misspelt words) might not be counted. Proper nouns and names ARE counted (within reason).';
 let msgConsole = document.getElementById('msgConsole');
@@ -13,21 +18,8 @@ let word = document.getElementById('word');
 let wordList = document.getElementById('wordList');
 let newRoomBtn = document.getElementById('newRoomBtn');
 
-const getUserIdCookie = () => {
-    return document.cookie
-        .split('; ')
-        .find(row => row.startsWith('userID='))
-        .split('=')[1];
-};
 
-const loopTeam = (team, teamDiv) => {
-    teamDiv.innerHTML = '';
-    for (i = 0; i < team.length; i++) {
-        let li = document.createElement('li');
-        li.innerHTML = team[i][0];
-        teamDiv.appendChild(li);
-    }
-};
+// Socket funcs:
 
 const newRoom = () => {
     socketio.emit('new_room', getUserIdCookie());
@@ -60,7 +52,28 @@ const onEnter = (e, func) => {
     }
 }
 
-// Socketio events:
+
+// Other funcs:
+
+const getUserIdCookie = () => {
+    return document.cookie
+        .split('; ')
+        .find(row => row.startsWith('userID='))
+        .split('=')[1];
+};
+
+const loopTeam = (team, teamDiv) => {
+    teamDiv.innerHTML = '';
+    for (i = 0; i < team.length; i++) {
+        let li = document.createElement('li');
+        li.innerHTML = team[i][0];
+        teamDiv.appendChild(li);
+    }
+};
+
+
+// Socketio event handling:
+
 socketio.on('connect', () => {
     console.log('Connected');
 });
@@ -145,7 +158,7 @@ socketio.on('start_timer', (time) => {
     }, 1000);
 });
 
-// DOM events
+// DOM event handling
 joinBtn.addEventListener('click', onJoinRoom)
 
 startBtn.addEventListener('click', startGame)
