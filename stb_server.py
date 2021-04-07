@@ -265,7 +265,7 @@ def send_word_to_room(data):
                     ob_words.append(ob_word)
                 socketio.emit('receive_word', ', '.join(ob_words), room=data['room'], broadcast=True)
         else:
-            socketio.emit('message', 'Game not started!', room=data['room'])
+            socketio.emit('message', 'Game not started!', room=request.sid)
     except KeyError:
         socketio.emit('message', 'You are not in a game!', room=request.sid)
 
