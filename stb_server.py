@@ -50,13 +50,6 @@ class GameEngine:
 
     def __init__(self):
         self.players = []
-        self.teams = {}
-        self._teams = None
-        self.game_started = False
-        self.starting_letter = ''
-        self.games_played = 0
-
-    def init_game(self):
         self.teams = {
             'a': {
                 'team_name': '',
@@ -71,6 +64,12 @@ class GameEngine:
                 'score': 0
             }
         }
+        self._teams = None
+        self.game_started = False
+        self.starting_letter = ''
+        self.games_played = 0
+
+    def init_game(self):
         if not self._teams:
             self._teams = itertools.cycle(self.teams.keys())
         if not self.games_played:
