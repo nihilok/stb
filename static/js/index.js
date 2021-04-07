@@ -50,7 +50,6 @@ const sendWord = () => {
     word.value = '';
 };
 
-
 const startGame = () => {
     socketio.emit('start_game', {room: gameId.innerText});
 };
