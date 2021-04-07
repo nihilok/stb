@@ -16,7 +16,7 @@ let joinBtn = document.getElementById('join');
 let word = document.getElementById('word');
 let wordList = document.getElementById('wordList');
 let newRoomBtn = document.getElementById('newRoomBtn');
-
+let timer = document.getElementById("timer")
 
 // Socket funcs:
 
@@ -138,24 +138,26 @@ socketio.on('receive_word', (msg) => {
 
 socketio.on('round_result', (data) => {
     wordList.innerHTML = '';
-    wordList.innerHTML += `Team A <br> WORDS: ${data.a['good_words'] ? data.a['good_words'] : 'None!'}<br>NOT COUNTED: ${data.a['bad_words'] ? data.a['bad_words'] : 'None!'}<br>SCORE: ${data.a['score']}`;
-    wordList.innerHTML += `<br><br>Team B <br> WORDS: ${data.b['good_words'] ? data.b['good_words'] : 'None!'}<br>NOT COUNTED: ${data.b['bad_words'] ? data.b['bad_words'] : 'None!'}<br>SCORE: ${data.b['score']}`;
+    wordList.innerHTML += `Team A <br> WORDS: ${data.a['good_words'] ? data.a['good_words'] : 'None'}<br>NOT COUNTED: ${data.a['bad_words'] ? data.a['bad_words'] : 'None'}<br>SCORE: ${data.a['score']}`;
+    wordList.innerHTML += `<br><br>Team B <br> WORDS: ${data.b['good_words'] ? data.b['good_words'] : 'None'}<br>NOT COUNTED: ${data.b['bad_words'] ? data.b['bad_words'] : 'None'}<br>SCORE: ${data.b['score']}`;
+    wordList.innerHTML += `<br><br>COMMON WORDS: ${data.common_words}`;
     wordList.innerHTML += `<br><br>${data.winner}`;
     wordList.innerHTML += `<br>${data.score_tally}`;
-    wordList.innerHTML += `<br><br>COMMON WORDS: ${data.common_words}`;
     startBtn.style.display = 'block';
 });
 
 socketio.on('start_timer', (time) => {
+    timer.classList.add('text-2xl', 'font-bold', 'text-center', 'text-red-500')
+    timer.innerHTML = 'GO!'
     const countDownDate = convertDateForIos(time).getTime();
     const x = setInterval(function () {
         let now = new Date().getTime();
         let distance = countDownDate - now;
         let seconds = Math.floor((distance % (1000 * 60)) / 1000);
-        document.getElementById("timer").innerHTML = seconds + "s remaining";
+        timer.innerHTML = seconds + "s remaining";
         if (distance < 0) {
             clearInterval(x);
-            document.getElementById("timer").innerHTML = "TIME'S UP!";
+            timer.innerHTML = "TIME'S UP!";
             if (getUserIdCookie() === gameIdTag.innerHTML) {
                 socketio.emit('time_up', gameIdTag.innerHTML)
             }
