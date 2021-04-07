@@ -1,4 +1,4 @@
-socketio = io('mjfullstack.com:7777')
+socketio = io('mjfullstack.com:7777');
 
 
 let instructions = 'You will have 30 seconds in which to write as many words starting with the starting letter as you can. If your word is the same as a word from the other team, neither word will be counted. Non British-English words (including misspelt words) will not be counted. Proper nouns and names ARE counted (within reason).';
