@@ -211,10 +211,10 @@ def on_join(data):
 
 @socketio.on('leave')
 def on_leave(data):
-    username = data['username']
+    user = data['user']
     room = data['room']
     leave_room(room)
-    socketio.emit('message', username + ' has left ' + room, broadcast=True)
+    socketio.emit('message', user + ' has left ' + room, broadcast=True)
 
 
 @socketio.on('send_word')

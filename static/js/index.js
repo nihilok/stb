@@ -178,3 +178,7 @@ userName.addEventListener('keyup', (e) => {
 word.addEventListener('keyup', (e) => {
     onEnter(e, sendWord);
 });
+
+window.onbeforeunload = () => {
+    socket.emit('leave', {'user': getUserIdCookie(), 'room': gameId.innerText});
+}
