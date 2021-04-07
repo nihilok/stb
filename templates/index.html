@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Stop The Bus!</title>
   <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-  <link rel="stylesheet" type="text/css" href="../static/css/main.css">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
   <script type="text/javascript">
       (function () {
           let css = document.createElement('link');
@@ -41,14 +41,14 @@
         </ul>
       </div>
     </div>
-    <div id="timer" class="px-5 md:w-1/2">You will have 30 seconds in which to write as many words starting with the
+    <div id="timer" class="px-5 md:w-1/2">You will have 30 seconds in which to write as many words beginning with the
       starting
       letter as you can. If your word is the same as a word from the other team, neither word will be counted. Non
       British-English words (including misspelt words) might not be counted. Proper nouns and names ARE counted (within
       reason).
     </div>
     <div class="text-4xl font-semibold">Starting letter: <span id="letter" class="font-bold">?</span></div>
-    <div id="gamePanel" class="h-full flex flex-col space-y-3 justify-center items-center w-full">
+    <div id="gamePanel" class="flex flex-col space-y-3 justify-center items-center w-full" style="display: none">
       <div id="wordList" style="min-height: 10rem;"
            class="mt-2 p-3 w-64 rounded bg-white border-2 border-gray-500 inner-shadow"><span
               class="text-gray-400 italic">words will appear here</span></div>
@@ -76,6 +76,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
         integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
         crossorigin="anonymous"></script>
-<script type="text/javascript" src="../static/js/index.js"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/index.js') }}"></script>
 </body>
 </html>

@@ -4,9 +4,9 @@ socketio = io('mjfullstack.com:7777');
 
 // DOM elements:
 
-let instructions = 'You will have 30 seconds in which to write as many words starting with the starting letter as you can. If your word is the same as a word from the other team, neither word will be counted. Non British-English words (including misspelt words) might not be counted. Proper nouns and names ARE counted (within reason).';
 let msgConsole = document.getElementById('msgConsole');
 let gameId = document.getElementById('gameIdTag')
+let gamePanel = document.getElementById('gamePanel')
 let startBtn = document.getElementById('start')
 let teamA = document.getElementById('teamA');
 let teamB = document.getElementById('teamB');
@@ -111,7 +111,7 @@ socketio.on('new_room_name', (data) => {
     let joinCtrls = document.getElementById('joinCtrls');
     joinCtrls.style.display = 'none';
     startBtn.style.display = 'block';
-    document.getElementById("timer").innerHTML = instructions;
+    gamePanel.style.display = 'flex';
 });
 
 socketio.on('game_started', (data) => {
