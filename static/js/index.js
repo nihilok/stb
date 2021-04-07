@@ -88,9 +88,9 @@ socketio.on('disconnect', () => {
 });
 
 socketio.on('message', (msg) => {
-    window.scrollTo(0, 0);
-    msgConsole.style.display = 'block';
+    msgConsole.style.display = 'flex';
     msgConsole.innerHTML = msg;
+    msgConsole.scrollIntoView(true);
     setTimeout(() => {
         msgConsole.innerHTML = '';
         msgConsole.style.display = 'none';
@@ -98,8 +98,9 @@ socketio.on('message', (msg) => {
 });
 
 socketio.on('player_joined', (msg) => {
-    msgConsole.style.display = 'block';
+    msgConsole.style.display = 'flex';
     msgConsole.innerHTML = msg;
+    msgConsole.scrollIntoView(true);
     setTimeout(() => {
         msgConsole.innerHTML = '';
         msgConsole.style.display = 'none';

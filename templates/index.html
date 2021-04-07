@@ -21,7 +21,7 @@
 
   <div id="mainDiv"
        class="pb-2 flex flex-col w-full h-full py-3 justify-start items-center space-y-3">
-    <div id="msgConsole" class="w-full text-center py-3 h-max"
+    <div id="msgConsole" class="w-full justify-center items-center text-center py-3 h-max"
          style="display: none; font-family: monospace; color: green; background-color: black"></div>
     <div class="flex justify-center items-center text-4xl font-semibold mr-1">Game ID:<span id="gameIdTag"
                                                                                             style="font-family: monospace;"
@@ -56,19 +56,21 @@
              class="w-64 p-2 border-2 border-gray-500 mx-auto rounded inner-shadow text-center text-2xl"
              placeholder="type word here">
       <button onclick="sendWord()">SEND</button>
-      <button id='start' class="text-center mb-5" style="display: none">
+      <button id='start' class="text-center" style="display: none; margin-bottom: 2rem">
         START
       </button>
     </div>
-    <div id="joinCtrls" class="flex flex-col space-y-3 justify-center items-center w-full">
-      <input id='userName' type="text" placeholder="username" class="border border-black rounded w-64 px-10 py-2">
-      <input id='roomName' type="text" placeholder="game id (to join)"
-             class="border border-black rounded w-64 px-10 py-2">
-      <button id='join'>
-        JOIN
-      </button>
+    <div id="joinCtrls" class="w-full pb-10">
+      <div class="flex flex-col space-y-3 justify-center items-center w-full my-5">
+        <input id='userName' type="text" placeholder="username" class="border border-black rounded w-64 px-10 py-2">
+        <input id='roomName' type="text" placeholder="game id (to join)"
+               class="border border-black rounded w-64 px-10 py-2">
+        <button id='join'>
+          JOIN
+        </button>
 
-      <button id="newRoomBtn" class="mb-10">NEW ROOM</button>
+        <button id="newRoomBtn">NEW ROOM</button>
+      </div>
     </div>
   </div>
 </div>
