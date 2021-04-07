@@ -170,7 +170,6 @@ def index():
 
 @socketio.on('new_room')
 def new_room(data):
-    print(data)
     host = data['username']
     room = data['userID']
     games[room] = GameEngine()
