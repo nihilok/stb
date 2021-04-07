@@ -70,6 +70,7 @@ socketio.on('disconnect', () => {
 });
 
 socketio.on('message', (msg) => {
+    window.scrollTo(0, 0);
     msgConsole.style.display = 'block';
     msgConsole.innerHTML = msg;
     setTimeout(() => {
@@ -91,7 +92,7 @@ socketio.on('new_room_name', (data) => {
     gameId.innerHTML = data;
     let joinCtrls = document.getElementById('joinCtrls');
     joinCtrls.style.display = 'none';
-    startBtn.style.visibility = 'visible';
+    startBtn.style.display = 'block';
     document.getElementById("timer").innerHTML = instructions;
 });
 
@@ -99,7 +100,7 @@ socketio.on('game_started', (data) => {
     loopTeam(data.a.players, teamA);
     loopTeam(data.b.players, teamB);
     wordList.innerHTML = '';
-    startBtn.style.visibility = 'hidden';
+    startBtn.style.display = 'none';
 });
 
 socketio.on('player_rejoined', (data) => {
@@ -124,7 +125,7 @@ socketio.on('round_result', (data) => {
     wordList.innerHTML += `<br><br>${data.winner}`;
     wordList.innerHTML += `<br>${data.score_tally}`;
     wordList.innerHTML += `<br><br>COMMON WORDS: ${data.common_words}`;
-    startBtn.style.visibility = 'visible';
+    startBtn.style.display = 'block';
 });
 
 socketio.on('start_timer', (time) => {
