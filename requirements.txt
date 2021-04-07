@@ -1,0 +1,4 @@
+flask-socketio
+pyenchant
+gunicorn
+eventlet
