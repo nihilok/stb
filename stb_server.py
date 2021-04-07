@@ -100,7 +100,7 @@ class GameEngine:
 
     def parse_score_tally(self):
         if self.score_tally < 0:
-            return f'Team A has won {self.score_tally} more {"game" if self.score_tally == 1 else "games"} more than Team B'
+            return f'Team A has won {self.score_tally} more {"game" if self.score_tally == -1 else "games"} more than Team B'
         elif self.score_tally > 0:
             return f'Team B has won {self.score_tally} more {"game" if self.score_tally == 1 else "games"} more than Team A'
         return "The scores are currently level"
