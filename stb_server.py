@@ -39,13 +39,8 @@ def riffle(deck):
 
 
 class GameEngine:
+
     ROUND_LENGTH = 30
-    blank_team_dict = {
-        'team_name': '',
-        'players': [],
-        'round_words': [],
-        'score': 0
-    }
     CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
     def __init__(self):
