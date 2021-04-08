@@ -41,6 +41,7 @@ def check_team(instance, sid):
         return 'a'
     return 'b'
 
+
 # refresh old userID cookies which were 8 chars in length:
 def refresh_cookies(cookie):
     if len(cookie) > 6:
