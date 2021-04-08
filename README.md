@@ -1,5 +1,5 @@
 # stb
-###### a take on the popular word game 'Stop the bus'
+##### a take on the popular word game 'Stop the bus'
 
 To run the server, you will need python3 with pip installed. Clone repository and install requirements:
 
