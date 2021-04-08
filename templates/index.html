@@ -29,13 +29,13 @@
     </div>
     <div id="teams" class="grid grid-cols-2 w-full px-5 gap-2 md:w-1/2">
       <div class="flex flex-col justify-start items-center w-full border border-gray-500 rounded bg-white">
-        Team A
+        <span class="font-bold">Team A</span>
         <ul id="teamA">
 
         </ul>
       </div>
       <div class="flex flex-col justify-start items-center w-full border border-gray-500 rounded bg-white">
-        Team B
+        <span class="font-bold">Team B</span>
         <ul id="teamB">
 
         </ul>
@@ -81,7 +81,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
         integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
         crossorigin="anonymous"></script>
-<!--<script type="text/javascript" src="{{ url_for('static', filename='js/index.js') }}"></script>-->
 
 <script type="text/javascript">
     // Socket connection:
@@ -89,7 +88,6 @@
 
 
     // DOM elements:
-
     let msgConsole = document.getElementById('msgConsole');
     let gameId = document.getElementById('gameIdTag')
     let gamePanel = document.getElementById('gamePanel')
@@ -105,8 +103,8 @@
     let timer = document.getElementById("timer")
     let playersInGame = document.getElementById("playersInGame")
 
-    // Socket funcs:
 
+    // Socket funcs:
     const newRoom = () => {
         checkUsername('new_room', null);
     };
@@ -126,7 +124,6 @@
 
 
     // Other funcs:
-
     const onEnter = (e, func) => {
         if (e.key === 'Enter') {
             console.log('Enter key pressed')
@@ -179,7 +176,6 @@
 
 
     // Socketio event handling:
-
     socketio.on('connect', () => {
         console.log('Connected');
     });
@@ -226,15 +222,16 @@
 
     socketio.on('round_result', (data) => {
         wordList.innerHTML = '';
-        wordList.innerHTML += `Team A <br> WORDS: ${data.a['good_words'] ? data.a['good_words'] : 'None'}<br>NOT COUNTED: ${data.a['bad_words'] ? data.a['bad_words'] : 'None'}<br>SCORE: ${data.a['score']}`;
-        wordList.innerHTML += `<br><br>Team B <br> WORDS: ${data.b['good_words'] ? data.b['good_words'] : 'None'}<br>NOT COUNTED: ${data.b['bad_words'] ? data.b['bad_words'] : 'None'}<br>SCORE: ${data.b['score']}`;
+        wordList.innerHTML += `Team A <br> WORDS: ${data.a['good_words'] ? data.a['good_words'] : 'None'}${data.a['bad_words'] ? "<br>NOT COUNTED: " + data.a['bad_words'] : ''}<br>SCORE: <span class="font-bold">${data.a['score']}</span>`;
+        wordList.innerHTML += `<br><br>Team B <br> WORDS: ${data.b['good_words'] ? data.b['good_words'] : 'None'}${data.b['bad_words'] ? "<br>NOT COUNTED: " + data.b['bad_words'] : ''}<br>SCORE: <span class="font-bold">${data.b['score']}</span>`;
         wordList.innerHTML += `<br><br>COMMON WORDS: ${data.common_words}`;
-        wordList.innerHTML += `<br><br>${data.winner}`;
+        wordList.innerHTML += `<br><br><span class="font-bold">${data.winner}</span>`;
         wordList.innerHTML += `<br>${data.score_tally}`;
         startBtn.style.display = 'block';
     });
 
     socketio.on('start_timer', (time) => {
+        timer.classList.remove('text-justify')
         timer.classList.add('text-2xl', 'font-bold', 'text-center', 'text-red-500')
         timer.innerHTML = 'GO!'
         const countDownDate = convertDateForIos(time).getTime();
@@ -255,18 +252,15 @@
 
 
     // DOM event handling:
-
     startBtn.addEventListener('click', startGame)
-
     newRoomBtn.addEventListener('click', newRoom)
-
     joinBtn.addEventListener('click', joinGame)
 
-    roomName.addEventListener('keyup', (e) => {
+    roomName.addEventListener('keypress', (e) => {
         onEnter(e, joinGame);
     });
 
-    userName.addEventListener('keyup', (e) => {
+    userName.addEventListener('keypress', (e) => {
         onEnter(e, () => {
             if (roomName.value) {
                 joinGame();
@@ -276,7 +270,7 @@
         });
     });
 
-    word.addEventListener('keyup', (e) => {
+    word.addEventListener('keypress', (e) => {
         onEnter(e, sendWord);
     });
 

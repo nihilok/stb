@@ -1,4 +1,4 @@
 flask-socketio
-pyenchant
 gunicorn
 eventlet
+pyenchant~=3.2.0
