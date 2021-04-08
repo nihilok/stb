@@ -296,9 +296,9 @@ def start_game(data):
             socketio.emit('message', 'not enough players', room=data['room'], broadcast=True)
 
 
-def check_team(instance, user):
+def check_team(instance):
     team_a_players = instance.teams['a']['players']
-    if user in [p[1] for p in team_a_players]:
+    if request.sid in team_a_players.keys():
         return 'a'
     return 'b'
 
@@ -308,7 +308,7 @@ def send_word_to_room(data):
     try:
         game = games[data['room']]
         if game.game_started:
-            team = check_team(game, data['user'])
+            team = check_team(game)
             if data['word'].lower().startswith(game.starting_letter.lower()):
                 game.teams[team]['round_words'].append(data['word'].strip())
                 all_words = riffle(game.teams['a']['round_words'] + game.teams['b']['round_words'])
