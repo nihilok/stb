@@ -126,7 +126,6 @@
     // Other funcs:
     const onEnter = (e, func) => {
         if (e.key === 'Enter') {
-            console.log('Enter key pressed')
             func();
         }
     }
@@ -177,11 +176,11 @@
 
     // Socketio event handling:
     socketio.on('connect', () => {
-        console.log('Connected');
+        flashMessage('Connected');
     });
 
     socketio.on('disconnect', () => {
-        console.log('Disconnected');
+        flashMessage('Disconnected from server');
     });
 
     socketio.on('message', (msg) => {
@@ -216,7 +215,6 @@
     });
 
     socketio.on('receive_word', (msg) => {
-        console.log('team words: ' + msg);
         wordList.innerHTML = msg;
     });
 
