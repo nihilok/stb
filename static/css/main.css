@@ -591,6 +591,11 @@ video {
   border-color: rgba(107, 114, 128, var(--tw-border-opacity));
 }
 
+.border-red-500 {
+  --tw-border-opacity: 1;
+  border-color: rgba(239, 68, 68, var(--tw-border-opacity));
+}
+
 .rounded {
   border-radius: 0.25rem;
 }

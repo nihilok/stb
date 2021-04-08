@@ -21,11 +21,21 @@ let timer = document.getElementById("timer")
 // Socket funcs:
 
 const newRoom = () => {
-    socketio.emit('new_room', {userID: getUserIdCookie(), username: userName.value});
+    if (userName.value) {
+        socketio.emit('new_room', {userID: getUserIdCookie(), username: userName.value});
+        userName.classList.remove('border', 'border-2', 'border-red-500');
+        return ;
+    }
+    userName.classList.add('border', 'border-2', 'border-red-500');
 };
 
 const joinGame = (data) => {
-    socketio.emit('join', {username: data.user, userID: getUserIdCookie(), room: data.room});
+    if (userName.value) {
+        socketio.emit('join', {username: data.user, userID: getUserIdCookie(), room: data.room});
+        userName.classList.remove('border', 'border-2', 'border-red-500');
+        return ;
+    }
+    userName.classList.add('border', 'border-2', 'border-red-500');
 };
 
 const onJoinRoom = () => {
