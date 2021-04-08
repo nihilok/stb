@@ -17,3 +17,5 @@ Example:
 `gunicorn ... --bind 0.0.0.0:7777`
 
 `http://example.com:7777`
+
+I have also included a `run_server.sh` script, which activates the virtual environment and starts the gunicorn server. This would need to be edited to include your own venv path, and marked as executable to be used.
