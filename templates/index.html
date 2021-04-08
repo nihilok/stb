@@ -6,15 +6,6 @@
   <title>Stop The Bus!</title>
   <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
-  <script type="text/javascript">
-      (function () {
-          let css = document.createElement('link');
-          css.href = 'https://use.fontawesome.com/releases/v5.15.1/css/all.css';
-          css.rel = 'stylesheet';
-          css.type = 'text/css';
-          document.getElementsByTagName('head')[0].appendChild(css);
-      })();
-  </script>
 </head>
 <body class="bg-black">
 <div class="container mx-auto min-h-screen py-0 bg-gray-100">
@@ -220,8 +211,12 @@
 
     socketio.on('round_result', (data) => {
         wordList.innerHTML = '';
-        wordList.innerHTML += `Team A <br> WORDS: ${data.a['good_words'] ? data.a['good_words'] : 'None'}${data.a['bad_words'] ? "<br>NOT COUNTED: " + data.a['bad_words'] : ''}<br>SCORE: <span class="font-bold">${data.a['score']}</span>`;
-        wordList.innerHTML += `<br><br>Team B <br> WORDS: ${data.b['good_words'] ? data.b['good_words'] : 'None'}${data.b['bad_words'] ? "<br>NOT COUNTED: " + data.b['bad_words'] : ''}<br>SCORE: <span class="font-bold">${data.b['score']}</span>`;
+        wordList.innerHTML += `Team A <br> WORDS: ${data.a['good_words'] ? data.a['good_words'] : 'None'}
+        ${data.a['bad_words'] ? "<br>NOT COUNTED: " + data.a['bad_words'] : ''}<br>SCORE: <span class="font-bold">
+        ${data.a['score']}</span>`;
+        wordList.innerHTML += `<br><br>Team B <br> WORDS: ${data.b['good_words'] ? data.b['good_words'] : 'None'}
+        ${data.b['bad_words'] ? "<br>NOT COUNTED: " + data.b['bad_words'] : ''}<br>SCORE: <span class="font-bold">
+        ${data.b['score']}</span>`;
         wordList.innerHTML += `<br><br>COMMON WORDS: ${data.common_words}`;
         wordList.innerHTML += `<br><br><span class="font-bold">${data.winner}</span>`;
         wordList.innerHTML += `<br>${data.score_tally}`;
