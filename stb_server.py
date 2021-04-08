@@ -269,10 +269,8 @@ def start_game(data):
                 'b': [],
             }
             for sid in asids:
-                print(game.teams['a']['players'][sid])
                 teams['a'].append(game.teams['a']['players'][sid]['username'])
             for sid in bsids:
-                print(game.teams['b']['players'][sid]['username'])
                 teams['b'].append(game.teams['b']['players'][sid]['username'])
             socketio.emit('game_started', teams, room=data['room'], broadcast=True)
             socketio.emit('start_timer', game.round_time().strftime('%Y-%m-%d %H:%M:%S'), room=data['room'],
