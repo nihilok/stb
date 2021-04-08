@@ -21,29 +21,11 @@ let timer = document.getElementById("timer")
 // Socket funcs:
 
 const newRoom = () => {
-    if (userName.value) {
-        socketio.emit('new_room', {userID: getUserIdCookie(), username: userName.value});
-        userName.classList.remove('border', 'border-2', 'border-red-500');
-        return ;
-    }
-    userName.classList.add('border', 'border-2', 'border-red-500');
+    checkUsername('new_room', null)
 };
 
-const joinGame = (data) => {
-    if (userName.value) {
-        socketio.emit('join', {username: data.user, userID: getUserIdCookie(), room: data.room});
-        userName.classList.remove('border', 'border-2', 'border-red-500');
-        return ;
-    }
-    userName.classList.add('border', 'border-2', 'border-red-500');
-};
-
-const onJoinRoom = () => {
-    let data = {
-        room: roomName.value,
-        user: userName.value
-    };
-    joinGame(data);
+const joinGame = () => {
+    checkUsername('join', roomName.value)
 };
 
 const sendWord = () => {
@@ -60,8 +42,19 @@ const startGame = () => {
 
 const onEnter = (e, func) => {
     if (e.key === 'Enter') {
+        console.log('Enter key pressed')
         func();
     }
+}
+
+const checkUsername = (socketEvent, room) => {
+    if (userName.value) {
+        socketio.emit(socketEvent, {username: userName.value, userID: getUserIdCookie(), room: room});
+        userName.classList.remove('border', 'border-2', 'border-red-500');
+        return;
+    }
+    userName.classList.add('border', 'border-2', 'border-red-500');
+    userName.focus()
 }
 
 const getUserIdCookie = () => {
@@ -82,7 +75,7 @@ const loopTeam = (team, teamDiv) => {
 
 const convertDateForIos = (date) => {
     let arr = date.split(/[- :]/);
-    date = new Date(arr[0], arr[1]-1, arr[2], arr[3], arr[4], arr[5]);
+    date = new Date(arr[0], arr[1] - 1, arr[2], arr[3], arr[4], arr[5]);
     return date;
 }
 
@@ -170,28 +163,33 @@ socketio.on('start_timer', (time) => {
     }, 1000);
 });
 
-// DOM event handling:
 
-joinBtn.addEventListener('click', onJoinRoom)
+// DOM event handling:
 
 startBtn.addEventListener('click', startGame)
 
 newRoomBtn.addEventListener('click', newRoom)
 
+joinBtn.addEventListener('click', joinGame)
+
 roomName.addEventListener('keyup', (e) => {
-    onEnter(e, onJoinRoom);
+    onEnter(e, joinGame);
 });
 
 userName.addEventListener('keyup', (e) => {
-    if (roomName.value) {
-        onEnter(e, onJoinRoom);
-    }
+    onEnter(e, () => {
+        if (roomName.value) {
+            joinGame();
+        } else {
+            newRoom();
+        }
+    });
 });
 
 word.addEventListener('keyup', (e) => {
     onEnter(e, sendWord);
 });
 
-window.onbeforeunload = () => {
-    socket.emit('leave', {'user': getUserIdCookie(), 'room': gameId.innerText});
-}
+// window.onbeforeunload = () => {
+//     socketio.emit('leave', {'user': getUserIdCookie(), 'room': gameId.innerText});
+// }
