@@ -1,5 +1,5 @@
 // Socket connection:
-socketio = io('mjfullstack.com:7777');
+socketio = io(`${window.origin}`);
 
 
 // DOM elements:
@@ -17,15 +17,16 @@ let word = document.getElementById('word');
 let wordList = document.getElementById('wordList');
 let newRoomBtn = document.getElementById('newRoomBtn');
 let timer = document.getElementById("timer")
+let playersInGame = document.getElementById("playersInGame")
 
 // Socket funcs:
 
 const newRoom = () => {
-    checkUsername('new_room', null)
+    checkUsername('new_room', null);
 };
 
 const joinGame = () => {
-    checkUsername('join', roomName.value)
+    checkUsername('join', roomName.value);
 };
 
 const sendWord = () => {
@@ -53,6 +54,7 @@ const checkUsername = (socketEvent, room) => {
         userName.classList.remove('border', 'border-2', 'border-red-500');
         return;
     }
+    flashMessage('You need a username...')
     userName.classList.add('border', 'border-2', 'border-red-500');
     userName.focus()
 }
@@ -79,6 +81,16 @@ const convertDateForIos = (date) => {
     return date;
 }
 
+const flashMessage = (message) => {
+    msgConsole.style.display = 'flex';
+    msgConsole.innerHTML = message;
+    msgConsole.scrollIntoView(true);
+    setTimeout(() => {
+        msgConsole.innerHTML = '';
+        msgConsole.style.display = 'none';
+    }, 3000);
+}
+
 
 // Socketio event handling:
 
@@ -91,24 +103,16 @@ socketio.on('disconnect', () => {
 });
 
 socketio.on('message', (msg) => {
-    msgConsole.style.display = 'flex';
-    msgConsole.innerHTML = msg;
-    msgConsole.scrollIntoView(true);
-    setTimeout(() => {
-        msgConsole.innerHTML = '';
-        msgConsole.style.display = 'none';
-    }, 3000);
+    flashMessage(msg);
 });
 
 socketio.on('player_joined', (msg) => {
-    msgConsole.style.display = 'flex';
-    msgConsole.innerHTML = msg;
-    msgConsole.scrollIntoView(true);
-    setTimeout(() => {
-        msgConsole.innerHTML = '';
-        msgConsole.style.display = 'none';
-    }, 3000);
+    flashMessage(msg)
 });
+
+socketio.on('update_joined_players', (players) => {
+    playersInGame.innerHTML = players
+})
 
 socketio.on('new_room_name', (data) => {
     gameId.innerHTML = data;
@@ -189,7 +193,3 @@ userName.addEventListener('keyup', (e) => {
 word.addEventListener('keyup', (e) => {
     onEnter(e, sendWord);
 });
-
-// window.onbeforeunload = () => {
-//     socketio.emit('leave', {'user': getUserIdCookie(), 'room': gameId.innerText});
-// }

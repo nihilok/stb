@@ -86,6 +86,13 @@ class GameEngine:
         self.game_started = True
         self.games_played += 1
 
+    @property
+    def player_names(self):
+        non_team_players = [player['username'] for player in self.players.values()]
+        team_a_players = [player['username'] for player in self.teams['a']['players'].values()]
+        team_b_players = [player['username'] for player in self.teams['b']['players'].values()]
+        return non_team_players + team_a_players + team_b_players
+
     def sort_teams(self):
         sids = list(self.players.keys())
         for p in sids:
@@ -199,6 +206,7 @@ def new_room(data):
     games[room].players[request.sid] = return_user_dict(room, host + ' (host)')
     join_room(room)
     socketio.emit('new_room_name', room, room=room)
+    socketio.emit('update_joined_players', ', '.join(games[room].player_names), room=room)
 
 
 @socketio.on('join')
@@ -215,6 +223,7 @@ def on_join(data):
             all_words = riffle(game.teams['a']['round_words'] + game.teams['b']['round_words'])
             socketio.emit('receive_word', ', '.join(all_words), room=data['room'])
         socketio.emit('new_room_name', room, room=room)
+        socketio.emit('update_joined_players', ', '.join(game.player_names), room=data['room'], broadcast=True)
     else:
         socketio.emit('message', 'Room not found', room=request.sid)
 
@@ -239,7 +248,7 @@ def disconnect():
         if request.sid in game.players.keys():
             socketio.emit('message', game.players.pop(request.sid)['username'] + ' has left the game', room=_room,
                           broadcast=True)
-
+        socketio.emit('update_joined_players', ', '.join(game.player_names), room=_room, broadcast=True)
 
 @socketio.on('send_word')
 def send_word(word):
@@ -256,7 +265,14 @@ def time_up(data):
 
 @socketio.on('start_game')
 def start_game(data):
-    game = games[data['room']]
+    try:
+        game = games[data['room']]
+    except KeyError as e:
+        socketio.emit('message',
+                      'Game ID: ' + str(e) + ' does not exist<br>Please refresh your browser',
+                      room=request.sid)
+        return
+
     if not game.game_started:
         if len(game.players) > 1 or (game.games_played > 0 and
                                      (len(game.teams['a']['players']) > 0 and
