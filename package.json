@@ -2,7 +2,7 @@
   "name": "stb",
   "version": "1.0.0",
   "description": "word games",
-  "main": "static/js/index.js",
+  "main": "templates/index.html",
   "scripts": {
     "tw_build": "tailwind build src/my.css -o static/css/main.css"
   },
