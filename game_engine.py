@@ -9,7 +9,7 @@ dictionary = enchant.Dict("en_GB")
 
 
 class GameEngine:
-    ROUND_LENGTH = 30
+    ROUND_LENGTH = 45
     CHARS = string.ascii_uppercase
 
     def __init__(self):
@@ -72,6 +72,9 @@ class GameEngine:
         sids = list(self.players.keys())
         for p in sids:
             team = next(self._teams)
+            other_team = self.teams[[key for key in self.teams if key != team][0]]
+            if len(self.teams[team]['players']) > len(other_team['players']):
+                team = next(self._teams)
             self.teams[team]['players'][p] = self.players.pop(p)
 
     def check_team_length(self):

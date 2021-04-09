@@ -12,7 +12,7 @@ games = {}
 
 @app.route('/')
 def index():
-    resp = make_response(render_template('index.html'))
+    resp = make_response(render_template('index.html', round_length=GameEngine.ROUND_LENGTH))
     if not request.cookies.get('userID'):
         id = random_string()
         resp.set_cookie('userID', id)
@@ -83,7 +83,7 @@ def start_game(data):
         return
 
     if not game.game_started:
-        if len(game.players) > 1 or (game.games_played > 0 and
+        if len(game.player_names) > 1 or (game.games_played > 0 and
                                      (len(game.teams['a']['players']) > 0 and
                                       len(game.teams['b']['players']) > 0)):
             game.init_game()
