@@ -2,6 +2,7 @@ import string
 from datetime import timedelta, datetime
 from itertools import cycle
 from random import randint
+import os
 
 import enchant
 
@@ -93,6 +94,8 @@ class GameEngine:
 
     def round_time(self):
         end_time = datetime.now() + timedelta(seconds=self.ROUND_LENGTH + 2)
+        if os.name != 'nt':
+            end_time += timedelta(hours=1)
         return end_time
 
     def compare_words(self):

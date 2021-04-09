@@ -240,11 +240,12 @@
         startBtn.style.display = 'block';
     });
 
-    socketio.on('start_timer', (time) => {
+    socketio.on('start_timer', (round_length) => {
         timer.classList.remove('text-justify')
         timer.classList.add('text-2xl', 'font-bold', 'text-center', 'text-red-500')
         timer.innerHTML = 'GO!'
-        const countDownDate = convertDateForIos(time).getTime();
+        let now = new Date().getTime();
+        const countDownDate = new Date(now.getTime() + round_length * 1000);
         const x = setInterval(function () {
             let now = new Date().getTime();
             let distance = countDownDate - now;

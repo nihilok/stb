@@ -98,7 +98,7 @@ def start_game(data):
             for sid in bsids:
                 teams['b'].append(game.teams['b']['players'][sid]['username'])
             socketio.emit('game_started', teams, room=data['room'], broadcast=True)
-            socketio.emit('start_timer', game.round_time().strftime('%Y-%m-%d %H:%M:%S'), room=data['room'],
+            socketio.emit('start_timer', game.ROUND_LENGTH, room=data['room'],
                           broadcast=True)
             socketio.emit('starting_letter', game.starting_letter, room=data['room'], broadcast=True)
         else:
