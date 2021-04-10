@@ -186,6 +186,7 @@
     });
 
     socketio.on('update_joined_players', (players) => {
+        console.log(players)
         playersInGame.innerHTML = players
     })
 
