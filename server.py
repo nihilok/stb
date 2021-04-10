@@ -1,12 +1,14 @@
 from flask import Flask, render_template, request, make_response
 from flask_socketio import SocketIO, join_room, leave_room, rooms
+from flask_cors import CORS
 
 from game_engine import GameEngine
 from utils import random_string, refresh_cookies, riffle, return_user_dict, check_team, obfuscate_words
 
 app = Flask(__name__)
 app.secret_key = random_string(24)
-socketio = SocketIO(app, cors_allowed_origins='*')
+CORS(app)
+socketio = SocketIO(app, cors_allowed_origins=['https://stb.mjfullstack.com'])
 games = {}
 
 
