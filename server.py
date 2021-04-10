@@ -8,7 +8,7 @@ from utils import random_string, refresh_cookies, riffle, return_user_dict, chec
 app = Flask(__name__)
 app.secret_key = random_string(24)
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins=['http://185.3.94.188:7777'])
+socketio = SocketIO(app, cors_allowed_origins=['http://stb.smarthome.com'])
 games = {}
 
 
