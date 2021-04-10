@@ -32,7 +32,7 @@ def new_room(data):
     games[room] = GameEngine()
     games[room].players[request.sid] = return_user_dict(room, host + ' (host)')
     join_room(room)
-    socketio.emit('new_room_name', room, room=room)
+    socketio.emit('new_room_name', {'room': room, 'started': games[room].game_started}, room=room)
     socketio.emit('update_joined_players', ', '.join(games[room].player_names), room=room)
 
 
@@ -51,7 +51,7 @@ def on_join(data):
         socketio.emit('player_joined', username + ' has entered ' + room, room=room, broadcast=True)
         socketio.emit('update_joined_players', ', '.join(game.player_names), room=data['room'], broadcast=True)
         print('sent global signals')
-        socketio.emit('new_room_name', room, room=room)
+        socketio.emit('new_room_name', {'room': room, 'started': game.game_started}, room=room)
         print('sent personal signal')
         if game.game_started:
             all_words = riffle(game.teams['a']['round_words'] + game.teams['b']['round_words'])
@@ -140,4 +140,4 @@ def time_up(data):
 
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=7777)
+    socketio.run(app, host='0.0.0.0', port=7777, debug=True)

@@ -77,7 +77,8 @@
 
 <script type="text/javascript">
     // Socket connection:
-    socketio = io('185.3.94.188:7777');
+    // socketio = io('185.3.94.188:7777');
+    socketio = io('localhost:7777');
 
 
     // DOM elements:
@@ -151,12 +152,6 @@
         }
     };
 
-    const convertDateForIos = (date) => {
-        let arr = date.split(/[- :]/);
-        date = new Date(arr[0], arr[1] - 1, arr[2], arr[3], arr[4], arr[5]);
-        return date;
-    }
-
     const flashMessage = (message) => {
         msgConsole.style.display = 'flex';
         msgConsole.innerHTML = message;
@@ -191,13 +186,20 @@
     })
 
     socketio.on('new_room_name', (data) => {
-        gameId.innerHTML = data;
+        console.log(data)
+        gameId.innerHTML = data.room;
         let joinCtrls = document.getElementById('joinCtrls');
         joinCtrls.style.display = 'none';
-        startBtn.style.display = 'block';
         gamePanel.style.display = 'flex';
         word.disabled = true;
         sendBtn.disabled = true;
+        if (!data.started) {
+            startBtn.style.display = 'block';
+            if (getUserIdCookie() !== data.room) {
+                startBtn.disabled = true;
+                startBtn.innerHTML = 'Wait for host to start..'
+            }
+        }
     });
 
     socketio.on('game_started', (data) => {
@@ -239,6 +241,10 @@
         wordList.innerHTML += `<br><br><span class="font-bold">${data.winner}</span>`;
         wordList.innerHTML += `<br>${data.score_tally}`;
         startBtn.style.display = 'block';
+        if (getUserIdCookie() !== gameId.innerHTML) {
+            startBtn.disabled = true;
+            startBtn.innerHTML = 'Wait for host to start..'
+        }
     });
 
     socketio.on('start_timer', (round_length) => {
@@ -257,8 +263,8 @@
                 timer.innerHTML = "TIME'S UP!";
                 word.disabled = true;
                 sendBtn.disabled = true;
-                if (getUserIdCookie() === gameIdTag.innerHTML) {
-                    socketio.emit('time_up', gameIdTag.innerHTML)
+                if (getUserIdCookie() === gameId.innerHTML) {
+                    socketio.emit('time_up', gameId.innerHTML)
                 }
             }
         }, 1000);
