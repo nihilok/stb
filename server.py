@@ -37,7 +37,7 @@ def new_room(data):
 @socketio.on('join')
 def on_join(data):
     username = data['username']
-    room = data['room']
+    room = data['room'].upper()
     if room in games.keys():
         user = data['userID']
         join_room(room)
@@ -62,12 +62,14 @@ def disconnect():
             if game.game_started or game.games_played:
                 for team in game.teams.keys():
                     if check_team(game, request.sid) == team:
+                        player = game.teams[team]['players'].pop(request.sid)
                         socketio.emit('message',
-                                      game.teams[team]['players'].pop(request.sid)['username'] + ' has left the game',
+                                      player['username'] + ' has left the game',
                                       room=room, broadcast=True)
                         break
             if request.sid in game.players.keys():
-                socketio.emit('message', game.players.pop(request.sid)['username'] + ' has left the game', room=room,
+                player = game.players.pop(request.sid)
+                socketio.emit('message', player['username'] + ' has left the game', room=room,
                               broadcast=True)
             socketio.emit('update_joined_players', ', '.join(game.player_names), room=room, broadcast=True)
 
