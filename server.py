@@ -38,28 +38,21 @@ def new_room(data):
 
 @socketio.on('join')
 def on_join(data):
-    print('++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
-    print('starting join procedure')
     username = data['username']
     room = data['room'].upper()
     if room in games.keys():
         user = data['userID']
         join_room(room)
-        print('player in room')
         game = games[room]
         game.players[request.sid] = return_user_dict(user, username)
         socketio.emit('player_joined', username + ' has entered ' + room, room=room, broadcast=True)
         socketio.emit('update_joined_players', ', '.join(game.player_names), room=data['room'], broadcast=True)
-        print('sent global signals')
         socketio.emit('new_room_name', {'room': room, 'started': game.game_started}, room=room)
-        print('sent personal signal')
         if game.game_started:
             all_words = riffle(game.teams['a']['round_words'] + game.teams['b']['round_words'])
             socketio.emit('receive_word', ', '.join(all_words), room=data['room'])
     else:
         socketio.emit('message', 'Room not found', room=request.sid)
-    print('join procedure complete')
-    print('++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
 
 
 @socketio.on('disconnect')
