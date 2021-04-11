@@ -181,12 +181,10 @@
     });
 
     socketio.on('update_joined_players', (players) => {
-        console.log(players)
         playersInGame.innerHTML = players
     })
 
     socketio.on('new_room_name', (data) => {
-        console.log(data)
         gameId.innerHTML = data.room;
         let joinCtrls = document.getElementById('joinCtrls');
         joinCtrls.style.display = 'none';
