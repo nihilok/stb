@@ -47,12 +47,14 @@ def check_team(instance, sid):
 
 
 def obfuscate_words(game):
-    a_team_words = [(word, 'a') for word in game.teams['a']['round_words']]
-    b_team_words = [(word, 'b') for word in game.teams['b']['round_words']]
+    a_team_words = [(word, 'a') for word in set(game.teams['a']['round_words'])]
+    b_team_words = [(word, 'b') for word in set(game.teams['b']['round_words'])]
     all_words = riffle(a_team_words + b_team_words)
     ob_words = []
     for word in all_words:
-        _ob_word = word[0][0] + ('*' * (len(word[0]) - 3)) + word[0][-2:]
+        _ob_word = word[0]
+        if len(word[0]) > 3:
+            _ob_word = word[0][0] + ('*' * (len(word[0]) - 3)) + word[0][-2:]
         ob_words.append((_ob_word, word[1]))
     return ob_words
 

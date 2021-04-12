@@ -47,9 +47,7 @@ def on_join(data):
         game = games[room]
         game.players[request.sid] = return_user_dict(user, username)
         socketio.emit('player_joined', username + ' has entered ' + room, room=room, broadcast=True)
-        print('player joined')
         socketio.emit('update_joined_players', ', '.join(game.player_names), room=room, broadcast=True)
-        print('player join message sent')
         socketio.emit('new_room_name', {'room': room,
                                         'started': game.game_started,
                                         'host': game.host}, room=request.sid)
@@ -141,6 +139,7 @@ def time_up(data):
         res = game.end_round()
         res['host'] = game.host
         socketio.emit('round_result', res, room=data, broadcast=True)
+
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=7777, debug=True)
