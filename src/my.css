@@ -16,6 +16,7 @@ button:disabled {
 
 button:focus {
     outline: 0;
+    margin-top: -1px;
     @apply border-2;
 }
 
