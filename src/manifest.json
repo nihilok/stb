@@ -1,0 +1,50 @@
+{
+  "name": "Stop The Bus",
+  "short_name": "stb",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#000",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/files/bus_icon72.png",
+      "type": "image/png",
+      "sizes": "72x72"
+    },
+    {
+      "src": "/files/bus_icon96.png",
+      "type": "image/png",
+      "sizes": "96x96"
+    },
+    {
+      "src": "/files/bus_icon128.png",
+      "type": "image/png",
+      "sizes": "128x128"
+    },
+    {
+      "src": "/files/bus_icon144.png",
+      "type": "image/png",
+      "sizes": "144x144"
+    },
+    {
+      "src": "/files/bus_icon152.png",
+      "type": "image/png",
+      "sizes": "152x152"
+    },
+    {
+      "src": "/files/bus_icon192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/files/bus_icon384.png",
+      "type": "image/png",
+      "sizes": "384x384"
+    },
+    {
+      "src": "/files/bus_icon512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

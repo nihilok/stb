@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, make_response
+from flask import Flask, render_template, request, make_response, send_from_directory
 from flask_socketio import SocketIO, join_room, leave_room, rooms
 from flask_cors import CORS
 
@@ -139,6 +139,11 @@ def time_up(data):
         res = game.end_round()
         res['host'] = game.host
         socketio.emit('round_result', res, room=data, broadcast=True)
+
+
+@app.route('/files/<path:filename>', methods=['GET'])
+def files(filename):
+    return send_from_directory('./src/icons/', filename)
 
 
 if __name__ == '__main__':
