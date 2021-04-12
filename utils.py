@@ -28,18 +28,22 @@ def riffle(deck):
     return deck
 
 
-def return_user_dict(user_id, username):
+def return_user_dict(user_id, username, host=False):
     return {
         'userID': user_id,
         'username': username,
+        'host': host
     }
 
 
 def check_team(instance, sid):
     team_a_players = instance.teams['a']['players']
+    team_b_players = instance.teams['b']['players']
     if sid in team_a_players.keys():
         return 'a'
-    return 'b'
+    elif sid in team_b_players.keys():
+        return 'b'
+    return None
 
 
 def obfuscate_words(game):
@@ -51,6 +55,34 @@ def obfuscate_words(game):
         _ob_word = word[0][0] + ('*' * (len(word[0]) - 3)) + word[0][-2:]
         ob_words.append((_ob_word, word[1]))
     return ob_words
+
+
+def change_host(room, games, socket):
+    game = games[room]
+    team_a = game.teams['a']['players']
+    team_b = game.teams['b']['players']
+    if len(team_a) + len(team_b) > 0:
+        if len(team_a) > len(team_b) or (len(team_a) + len(team_b) >= 2 and len(team_a) == len(team_b)):
+            new_host_id = list(team_a.items())[0][0]
+            game.teams['a']['players'][new_host_id]['host'] = True
+            game.teams['a']['players'][new_host_id]['username'] += ' (host)'
+            games[room].host = game.teams['a']['players'][new_host_id]['userID']
+        else:
+            new_host_id = list(team_b.items())[0][0]
+            game.teams['b']['players'][new_host_id]['host'] = True
+            game.teams['b']['players'][new_host_id]['username'] += ' (host)'
+            games[room].host = game.teams['b']['players'][new_host_id]['userID']
+    elif len(game.players.keys()):
+        new_host_id = list(game.players.items())[0][0]
+        game.players[new_host_id]['host'] = True
+        game.players[new_host_id]['username'] += ' (host)'
+        games[room].host = game.players[new_host_id]['userID']
+    else:
+        return
+    socket.emit('set_host', game.host, room=room, broadcast=True)
+    socket.emit('new_room_name', {'room': room, 'started': game.game_started, 'host': game.host}, room=new_host_id)
+    socket.emit('message', 'Host disconnected; Host changed', room=room, broadcast=True)
+    socket.emit('update_joined_players', ', '.join(game.player_names), room=room, broadcast=True)
 
 
 # refresh old userID cookies which were 8 chars in length:

@@ -13,7 +13,8 @@ class GameEngine:
     ROUND_LENGTH = 45
     CHARS = string.ascii_uppercase
 
-    def __init__(self):
+    def __init__(self, host):
+        self.host = host
         self.players = {}
         self.teams = {
             'a': {

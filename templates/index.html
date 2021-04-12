@@ -34,7 +34,8 @@
         </ul>
       </div>
     </div>
-    <div id="timer" class="px-5 md:w-1/2 text-justify">You will have {{round_length}} seconds in which to write as many words
+    <div id="timer" class="px-5 md:w-1/2 text-justify">You will have {{round_length}} seconds in which to write as many
+      words
       beginning with the starting letter as you can. Non British-English words and misspelt words do not count. Proper
       nouns/ names DO count (within reason). The longer the word, the higher the score. If your word is the same as a
       word from the other team, neither word will count. Think strategically! &#129300
@@ -77,8 +78,8 @@
 
 <script type="text/javascript">
     // Socket connection:
-    socketio = io('stb.mjfullstack.com');
-    // socketio = io('localhost:7777');
+    // socketio = io('stb.mjfullstack.com');
+    socketio = io('localhost:7777');
 
 
     // DOM elements:
@@ -95,8 +96,9 @@
     let word = document.getElementById('word');
     let wordList = document.getElementById('wordList');
     let newRoomBtn = document.getElementById('newRoomBtn');
-    let timer = document.getElementById("timer")
-    let playersInGame = document.getElementById("playersInGame")
+    let timer = document.getElementById("timer");
+    let playersInGame = document.getElementById("playersInGame");
+    let host;
 
 
     // Socket funcs:
@@ -133,7 +135,7 @@
         }
         flashMessage('You need a username...')
         userName.classList.add('border', 'border-2', 'border-red-500');
-        userName.focus()
+        userName.focus();
     }
 
     const getUserIdCookie = () => {
@@ -162,6 +164,17 @@
         }, 3000);
     }
 
+    const checkHost = (func) => {
+        if (host === getUserIdCookie()) {
+            func()
+        }
+    }
+    const checkNotHost = (func) => {
+        if (host !== getUserIdCookie()) {
+            func()
+        }
+    }
+
 
     // Socketio event handling:
     socketio.on('connect', () => {
@@ -186,19 +199,26 @@
 
     socketio.on('new_room_name', (data) => {
         gameId.innerHTML = data.room;
+        host = data.host
         let joinCtrls = document.getElementById('joinCtrls');
         joinCtrls.style.display = 'none';
         gamePanel.style.display = 'flex';
-        word.disabled = true;
-        sendBtn.disabled = true;
         if (!data.started) {
+            word.disabled = true;
+            sendBtn.disabled = true;
             startBtn.style.display = 'block';
-            if (getUserIdCookie() !== data.room) {
+            startBtn.disabled = false;
+            startBtn.innerHTML = 'START'
+            checkNotHost(() => {
                 startBtn.disabled = true;
                 startBtn.innerHTML = 'Wait for host to start..'
-            }
+            })
         }
     });
+
+    socketio.on('set_host', (data) => {
+        host = data
+    })
 
     socketio.on('game_started', (data) => {
         loopTeam(data.a, teamA);
@@ -216,7 +236,7 @@
 
     socketio.on('receive_word', (msg) => {
         let words = [], aWord;
-        for (i=0;i<msg.length;i++) {
+        for (i = 0; i < msg.length; i++) {
             if (msg[i][1] === 'a') {
                 aWord = `<span class="font-semibold text-blue-500 text-xl">${msg[i][0]}</span>`;
             } else {
@@ -225,6 +245,27 @@
             words.push(aWord);
         }
         wordList.innerHTML = words.join(', ');
+    });
+
+    socketio.on('start_timer', (data) => {
+        timer.classList.remove('text-justify')
+        timer.classList.add('text-2xl', 'font-bold', 'text-center', 'text-red-500')
+        timer.innerHTML = 'GO!'
+        let now = new Date().getTime();
+        const countDownDate = new Date(now + data.round_length * 1000);
+        const x = setInterval(function () {
+            let now = new Date().getTime();
+            let distance = countDownDate - now;
+            let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            timer.innerHTML = seconds + "s remaining";
+            if (distance < 0) {
+                clearInterval(x);
+                timer.innerHTML = "TIME'S UP!";
+                checkHost(() => {
+                    socketio.emit('time_up', gameId.innerHTML)
+                })
+            }
+        }, 1000);
     });
 
     socketio.on('round_result', (data) => {
@@ -239,35 +280,17 @@
         wordList.innerHTML += `<br><br><span class="font-bold">${data.winner}</span>`;
         wordList.innerHTML += `<br>${data.score_tally}`;
         startBtn.style.display = 'block';
-        if (getUserIdCookie() !== gameId.innerHTML) {
+        word.disabled = true;
+        sendBtn.disabled = true;
+        checkNotHost(() => {
             startBtn.disabled = true;
             startBtn.innerHTML = 'Wait for host to start..'
-        }
+        });
+        checkHost(() => {
+            startBtn.disabled = false;
+            startBtn.innerHTML = 'START'
+        })
     });
-
-    socketio.on('start_timer', (round_length) => {
-        timer.classList.remove('text-justify')
-        timer.classList.add('text-2xl', 'font-bold', 'text-center', 'text-red-500')
-        timer.innerHTML = 'GO!'
-        let now = new Date().getTime();
-        const countDownDate = new Date(now + round_length * 1000);
-        const x = setInterval(function () {
-            let now = new Date().getTime();
-            let distance = countDownDate - now;
-            let seconds = Math.floor((distance % (1000 * 60)) / 1000);
-            timer.innerHTML = seconds + "s remaining";
-            if (distance < 0) {
-                clearInterval(x);
-                timer.innerHTML = "TIME'S UP!";
-                word.disabled = true;
-                sendBtn.disabled = true;
-                if (getUserIdCookie() === gameId.innerHTML) {
-                    socketio.emit('time_up', gameId.innerHTML)
-                }
-            }
-        }, 1000);
-    });
-
 
     // DOM event handling:
     startBtn.addEventListener('click', startGame)

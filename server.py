@@ -3,7 +3,7 @@ from flask_socketio import SocketIO, join_room, leave_room, rooms
 from flask_cors import CORS
 
 from game_engine import GameEngine
-from utils import random_string, refresh_cookies, riffle, return_user_dict, check_team, obfuscate_words
+from utils import random_string, refresh_cookies, riffle, return_user_dict, check_team, obfuscate_words, change_host
 
 app = Flask(__name__)
 app.secret_key = random_string(24)
@@ -29,11 +29,12 @@ def index():
 def new_room(data):
     host = data['username']
     room = data['userID']
-    games[room] = GameEngine()
-    games[room].players[request.sid] = return_user_dict(room, host + ' (host)')
+    games[room] = GameEngine(room)
+    games[room].players[request.sid] = return_user_dict(room, host + ' (host)', True)
     join_room(room)
-    socketio.emit('new_room_name', {'room': room, 'started': games[room].game_started}, room=room)
+    socketio.emit('new_room_name', {'room': room, 'started': games[room].game_started, 'host': room}, room=request.sid)
     socketio.emit('update_joined_players', ', '.join(games[room].player_names), room=room)
+    socketio.emit('set_host', room, room=room)
 
 
 @socketio.on('join')
@@ -47,10 +48,11 @@ def on_join(data):
         game.players[request.sid] = return_user_dict(user, username)
         socketio.emit('player_joined', username + ' has entered ' + room, room=room, broadcast=True)
         socketio.emit('update_joined_players', ', '.join(game.player_names), room=data['room'], broadcast=True)
-        socketio.emit('new_room_name', {'room': room, 'started': game.game_started}, room=room)
+        socketio.emit('new_room_name', {'room': room,
+                                        'started': game.game_started,
+                                        'host': game.host}, room=request.sid)
         if game.game_started:
-            all_words = riffle(game.teams['a']['round_words'] + game.teams['b']['round_words'])
-            socketio.emit('receive_word', ', '.join(all_words), room=data['room'])
+            socketio.emit('receive_word', obfuscate_words(game), room=data['room'])
     else:
         socketio.emit('message', 'Room not found', room=request.sid)
 
@@ -65,12 +67,18 @@ def disconnect():
                 for team in game.teams.keys():
                     if check_team(game, request.sid) == team:
                         player = game.teams[team]['players'].pop(request.sid)
+                        if player['host']:
+                            change_host(room, games, socketio)
+                            return
                         socketio.emit('message',
                                       player['username'] + ' has left the game',
                                       room=room, broadcast=True)
                         break
             if request.sid in game.players.keys():
                 player = game.players.pop(request.sid)
+                if player['host']:
+                    change_host(room, games, socketio)
+                    return
                 socketio.emit('message', player['username'] + ' has left the game', room=room,
                               broadcast=True)
             socketio.emit('update_joined_players', ', '.join(game.player_names), room=room, broadcast=True)
@@ -102,7 +110,7 @@ def start_game(data):
             for sid in bsids:
                 teams['b'].append(game.teams['b']['players'][sid]['username'])
             socketio.emit('game_started', teams, room=data['room'], broadcast=True)
-            socketio.emit('start_timer', game.ROUND_LENGTH, room=data['room'],
+            socketio.emit('start_timer', {'round_length':game.ROUND_LENGTH, 'host': game.host}, room=data['room'],
                           broadcast=True)
             socketio.emit('starting_letter', game.starting_letter, room=data['room'], broadcast=True)
         else:
@@ -121,7 +129,7 @@ def send_word_to_room(data):
         else:
             socketio.emit('message', 'Game not started!', room=request.sid)
     except KeyError:
-        socketio.emit('message', 'You are not in a game!', room=request.sid)
+        socketio.emit('message', 'You are not in a team!', room=request.sid)
 
 
 @socketio.on('time_up')
@@ -129,8 +137,8 @@ def time_up(data):
     game = games[data]
     if game.game_started:
         res = game.end_round()
+        res['host'] = game.host
         socketio.emit('round_result', res, room=data, broadcast=True)
-
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=7777, debug=True)
