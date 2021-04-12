@@ -184,7 +184,7 @@
     socketio.on('disconnect', () => {
         flashMessage('Disconnected from server');
         setTimeout(() => {
-            window.reload()
+            location.reload()
         }, 1000)
     });
 
